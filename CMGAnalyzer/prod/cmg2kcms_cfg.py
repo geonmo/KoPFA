@@ -57,7 +57,7 @@ process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.Summer12.cmgTuple_TTbarFullL
 #)
 
 from CMGTools.Common.Tools.applyJSON_cff import applyJSON
-json = 'Cert_8TeV_Run2012ABCD_Golden_JSON.txt'
+json = 'Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt'
 if not runOnMC:
     applyJSON(process, json )
 

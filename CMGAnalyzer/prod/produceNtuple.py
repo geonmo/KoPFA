@@ -26,10 +26,10 @@ mclist += ["TTbarFullLepMGDecays","TTbarSemiLeptMGDecays","TTbarHadronicMGDecays
 #rdlist += ["Run2012Av1_MuEl","Run2012Av2_MuEl","Run2012B_MuEl","Run2012Cv1_MuEl","Run2012Cv2_MuEl","Run2012Cv3_MuEl","Run2012Dv1_MuEl"] #,"Run2012Dv2_MuEl"]
 #rdlist += ["Run2012Av1_ElEl","Run2012Av2_ElEl","Run2012B_ElEl","Run2012Cv1_ElEl","Run2012Cv2_ElEl","Run2012Cv3_ElEl","Run2012Dv1_ElEl"] #,"Run2012Dv2_ElEl"]
 #rdlist = ["Run2012Cv1_MuMu","Run2012Cv1_MuEl"]
-#rdlist = ["Run2012A-22Jan2013-v1_MuMu","Run2012B-22Jan2013-v1_MuMu","Run2012C-22Jan2013-v1_MuMu","Run2012D-22Jan2013-v1_MuMu"]
-#rdlist += ["Run2012A-22Jan2013-v1_MuEl","Run2012B-22Jan2013-v1_MuEl","Run2012C-22Jan2013-v1_MuEl","Run2012D-22Jan2013-v1_MuEl"]
-#rdlist += ["Run2012A-22Jan2013-v1_ElEl","Run2012B-22Jan2013-v1_ElEl","Run2012C-22Jan2013-v1_ElEl","Run2012D-22Jan2013-v1_ElEl"]
-rdlist = ["Run2012C-22Jan2013-v1_MuMu","Run2012C-22Jan2013-v1_ElEl","Run2012D-22Jan2013-v1_ElEl"]
+rdlist = ["Run2012A-22Jan2013-v1_MuMu","Run2012B-22Jan2013-v1_MuMu","Run2012C-22Jan2013-v1_MuMu","Run2012D-22Jan2013-v1_MuMu"]
+rdlist += ["Run2012A-22Jan2013-v1_MuEl","Run2012B-22Jan2013-v1_MuEl","Run2012C-22Jan2013-v1_MuEl","Run2012D-22Jan2013-v1_MuEl"]
+rdlist += ["Run2012A-22Jan2013-v1_ElEl","Run2012B-22Jan2013-v1_ElEl","Run2012C-22Jan2013-v1_ElEl","Run2012D-22Jan2013-v1_ElEl"]
+#rdlist += ["Run2012C-22Jan2013-v1_MuMu","Run2012C-22Jan2013-v1_ElEl","Run2012D-22Jan2013-v1_ElEl"]
 
 samplePath = {}
 samplePath["ZJets"]           ="KoPFA.CommonTools.Sources.CMG.V5_13_0.Summer12.cmgTuple_ZJets_cff"
@@ -137,7 +137,7 @@ def processSample( sample, dir):
 
     out.write(process.dumpPython())
     out.close()
-    os.system("cmsBatch0.py 1 "+dir+'/cmg2kcms_'+sample+'_cfg.py'+" -o "+dir+"/"+sample+"/Log -r "+dir+"/"+sample+"/Res -b 'bsub -q 1nh < batchScript.sh'")
+    os.system("cmsBatch0.py 500 "+dir+'/cmg2kcms_'+sample+'_cfg.py'+" -o "+dir+"/"+sample+"/Log -r "+dir+"/"+sample+"/Res -b 'bsub -q 1nh < batchScript.sh'")
     #os.system("cmsBatch0.py 3 "+dir+'/cmg2kcms_'+sample+'_cfg.py'+" -o "+dir+"/"+sample+"/Log -r "+dir+"/"+sample+"/Res -b 'bsub -q 1nh -oo "+dir+"/"+"log < batchScript.sh'")
     #os.system("cmsBatch0.py 1 "+dir+'/cmg2kcms_'+sample+'_cfg.py'+" -o "+dir+"/"+sample+"/Log -r "+dir+"/"+sample+"/Res -b 'bsub -G u_zh -q 1nh < batchScript.sh'")
 
