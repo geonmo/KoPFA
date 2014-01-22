@@ -3,6 +3,14 @@ using namespace std;
 
 void ana8TeV(){
 
+  gSystem->Load("libFWCoreFWLite.so");
+  gSystem->Load("libDataFormatsFWLite.so");
+  gSystem->Load("libDataFormatsPatCandidates.so");
+
+  gSystem->Load("libPhysicsToolsRooStatsCms.so");
+
+  AutoLibraryLoader::enable();
+
   ana("ElEl2Mu","TopMass/ElEl2Mu","CSVM","nbjets30_CSVM >= 1");
   ana("ElEl2El","TopMass/ElEl2El","CSVM","nbjets30_CSVM >= 1");
   ana("MuMu2Mu","TopMass/MuMu2Mu","CSVM","nbjets30_CSVM >= 1");
@@ -14,14 +22,6 @@ void ana8TeV(){
 
 void ana(string decayMode = "ElEl2Mu", string imageOutDir = "", TString weight = "", TCut cut = "")
 {
-  gSystem->Load("libFWCoreFWLite.so");
-  gSystem->Load("libDataFormatsFWLite.so");
-  gSystem->Load("libDataFormatsPatCandidates.so");
-
-  gSystem->Load("libPhysicsToolsRooStatsCms.so");
-
-  AutoLibraryLoader::enable();
-
   gSystem->CompileMacro("TopAnalyzerLite.cc", "k");
   TopAnalyzerLite* analyzer = new TopAnalyzerLite(decayMode, imageOutDir);
 
