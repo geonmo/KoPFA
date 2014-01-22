@@ -1,6 +1,6 @@
 #===============================================================================
 # File and Version Information:
-#      $Id: GNUmakefile 296 2011-09-30 00:46:54Z T.J.Adye $
+#      $Id: GNUmakefile,v 1.1 2012/03/26 14:47:35 taeyeon Exp $
 #
 # Description:
 #      Makefile for the RooUnfold package

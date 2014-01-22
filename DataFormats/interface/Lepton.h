@@ -100,6 +100,9 @@ namespace vallot{
 
     int charge_;
     double pt_;
+    double eta_;
+    double phi_;
+    double theta_;
 
     double chIso03_;
     double puChIso03_;

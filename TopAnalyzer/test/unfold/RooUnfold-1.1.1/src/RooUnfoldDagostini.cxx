@@ -1,6 +1,6 @@
 //=====================================================================-*-C++-*-
 // File and Version Information:
-//      $Id: RooUnfoldDagostini.cxx 298 2011-09-30 19:14:46Z T.J.Adye $
+//      $Id: RooUnfoldDagostini.cxx,v 1.1 2012/03/26 14:53:30 taeyeon Exp $
 //
 // Description:
 //      Unfolding interface to Fortran routine, BAYES, by G. D'Agostini from

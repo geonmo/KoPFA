@@ -152,8 +152,8 @@ CMGMuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     if( !passPre ) continue;
  
-//    bool passId = muon.sourcePtr()->get()->isPFMuon() && ( muon.sourcePtr()->get()->isGlobalMuon() ||  muon.sourcePtr()->get()->isTrackerMuon() );
-    bool passId = muon.isPF() && ( muon.isGlobal() ||  muon.isTracker() );    
+    bool passId = muon.sourcePtr()->get()->isPFMuon() && ( muon.sourcePtr()->get()->isGlobalMuon() ||  muon.sourcePtr()->get()->isTrackerMuon() );
+    
     if( !passId) continue;
 
     reco::isodeposit::Direction Dir = Direction(muon.eta(),muon.phi());

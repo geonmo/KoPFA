@@ -13,7 +13,7 @@
 //
 // Original Author:  Tae Jeong Kim
 //         Created:  Mon Dec 14 01:29:35 CET 2009
-// $Id: EventFilter.cc,v 1.6 2011/03/07 16:35:00 taeyeon Exp $
+// $Id: EventFilter.cc,v 1.1 2012/05/18 21:05:56 tjkim Exp $
 //
 //
 

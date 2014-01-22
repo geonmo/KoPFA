@@ -7,6 +7,9 @@ Lepton::Lepton( const reco::Candidate::LorentzVector& p4, const int& charge  ) :
 
   charge_ = charge;
   pt_ = p4.pt();
+  eta_ = p4.eta();
+  phi_ = p4.phi();
+  theta_ = p4.theta();
 }
 
 void Lepton::setIsoDeposit( pat::IsolationKeys key, const pat::IsoDeposit *dep, reco::isodeposit::AbsVetos vetos) {

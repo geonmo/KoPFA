@@ -1,6 +1,6 @@
 //=====================================================================-*-C++-*-
 // File and Version Information:
-//      $Id: Array2D.cxx 261 2011-01-13 19:00:40Z T.J.Adye $
+//      $Id: Array2D.cxx,v 1.1 2011/01/24 17:48:21 tjkim Exp $
 //
 // Description:
 //      A helper class designed to store an 2 dimensional array as a 1-D array.

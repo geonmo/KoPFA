@@ -1,6 +1,6 @@
 //=====================================================================-*-C++-*-
 // File and Version Information:
-//      $Id: RooUnfoldResponse.h 308 2011-10-10 18:13:54Z T.J.Adye $
+//      $Id: RooUnfoldResponse.h,v 1.1 2012/03/26 14:53:31 taeyeon Exp $
 //
 // Description:
 //      Response Matrix

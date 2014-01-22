@@ -4,5 +4,10 @@
   <class name="edm::Wrapper<vallot::CMGTTbarCandidate>"/>
   <class name="edm::Wrapper<std::vector<vallot::CMGTTbarCandidate> >"/>
   <class name="edm::Ptr<vallot::CMGTTbarCandidate>"/>
+  <class name="vallot::CMGTTbarJPsiCandidate" />
+  <class name="std::vector<vallot::CMGTTbarJPsiCandidate>" />
+  <class name="edm::Wrapper<vallot::CMGTTbarJPsiCandidate>"/>
+  <class name="edm::Wrapper<std::vector<vallot::CMGTTbarJPsiCandidate> >"/>
+  <class name="edm::Ptr<vallot::CMGTTbarJPsiCandidate>"/>
 </lcgdict>
 

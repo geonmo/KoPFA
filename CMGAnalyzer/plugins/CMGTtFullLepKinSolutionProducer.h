@@ -2,7 +2,7 @@
 #define CMGTtFullLepKinSolutionProducer_h
 
 //
-// $Id: CMGTtFullLepKinSolutionProducer.h,v 1.3 2012/10/26 11:32:37 youngjo Exp $
+// $Id: CMGTtFullLepKinSolutionProducer.h,v 1.4 2012/12/03 15:32:38 tjkim Exp $
 //
 #include <memory>
 #include <string>

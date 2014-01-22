@@ -14,7 +14,7 @@ namespace vallot{
     JPsiCandidate(){}
     virtual ~JPsiCandidate(){}
 
-    JPsiCandidate(const vallot::Lepton& leg1, const vallot::Lepton& leg2, const double& vProb, const double& dlPV, const double& ppdlPV, const double& ppdlErrPV, const int& genRefJpmomId, const double& DlTrue, const double& ppdlTrue) {
+    JPsiCandidate(const vallot::Lepton& leg1, const vallot::Lepton& leg2, const double& vProb, const double& dlPV, const double& dlErrPV, const double& ppdlPV, const double& ppdlErrPV, const int& genRefJpmomId, const double& DlTrue, const double& ppdlTrue, const int pixlayers1, const int pixlayers2) {
       leg1_ = leg1;
       leg2_ = leg2;
       mass_ = (leg1_+leg2_).M();
@@ -25,7 +25,7 @@ namespace vallot{
       theta_ = (leg1_+leg2_).theta();
       vProb_ = vProb;
       dlPV_ = dlPV;
-      //dlErrPV_ = dlErrPV;
+      dlErrPV_ = dlErrPV;
       ppdlPV_ = ppdlPV;
       ppdlErrPV_ = ppdlErrPV;
       //ppdlBS_ = ppdlBS;
@@ -33,9 +33,11 @@ namespace vallot{
       genRefJpmomId_ = genRefJpmomId;
       DlTrue_ = DlTrue;
       ppdlTrue_ = ppdlTrue;
+      pixlayers1_ = pixlayers1;
+      pixlayers2_ = pixlayers2;
     }
 
-    JPsiCandidate(const reco::Candidate::LorentzVector& leg1, const reco::Candidate::LorentzVector& leg2, const double& sign,const double& dlPV, const double& vProb, const double& ppdlPV, const double& ppdlErrPV, const int& genRefJpmomId, const double& DlTrue, const double& ppdlTrue) {
+    JPsiCandidate(const reco::Candidate::LorentzVector& leg1, const reco::Candidate::LorentzVector& leg2, const double& sign,const double& dlPV, const double& dlErrPV, const double& vProb, const double& ppdlPV, const double& ppdlErrPV, const int& genRefJpmomId, const double& DlTrue, const double& ppdlTrue, const int pixlayers1, const int pixlayers2) {
       lv1_= leg1 ;
       lv2_= leg2 ;
       mass_ = (leg1_+leg2_).M();
@@ -46,7 +48,7 @@ namespace vallot{
       theta_ = (leg1_+leg2_).theta();
       vProb_ = vProb;
       dlPV_ = dlPV;
-      //dlErrPV_ = dlErrPV;
+      dlErrPV_ = dlErrPV;
       ppdlPV_ = ppdlPV;
       ppdlErrPV_ = ppdlErrPV;
       //ppdlBS_ = ppdlBS;
@@ -54,6 +56,8 @@ namespace vallot{
       genRefJpmomId_ = genRefJpmomId;
       DlTrue_ = DlTrue;
       ppdlTrue_ = ppdlTrue;
+      pixlayers1_ = pixlayers1;
+      pixlayers2_ = pixlayers2;
     }
 
     const vallot::Lepton& leg1() const { return leg1_; }
@@ -69,7 +73,7 @@ namespace vallot{
     double theta() const { return theta_; }
     double vProb() const { return vProb_; }
     double dlPV() const { return dlPV_; }
-    //double dlErrPV() const { return dlErrPV_; }
+    double dlErrPV() const { return dlErrPV_; }
     double ppdlPV() const { return ppdlPV_; }
     double ppdlErrPV() const { return ppdlErrPV_; }
     //double ppdlBS() const { return ppdlBS_; }
@@ -79,6 +83,9 @@ namespace vallot{
     double ppdlTrue() const { return ppdlTrue_; }
     double deltaR() const; 
     double deltaPhi() const;
+    int    pixlayers1() const {return pixlayers1_;}
+    int    pixlayers2() const {return pixlayers2_;}
+
   private:
 
     vallot::Lepton leg1_;
@@ -94,7 +101,7 @@ namespace vallot{
     double theta_;
     double vProb_;
     double dlPV_;
-    //double dlErrPV_;
+    double dlErrPV_;
     double ppdlPV_;
     double ppdlErrPV_;
     //double ppdlBS_;
@@ -102,6 +109,8 @@ namespace vallot{
     int    genRefJpmomId_;
     double DlTrue_;
     double ppdlTrue_;
+    int    pixlayers1_;
+    int    pixlayers2_;
 
   };
 

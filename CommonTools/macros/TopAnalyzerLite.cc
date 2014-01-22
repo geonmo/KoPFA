@@ -52,7 +52,7 @@ public:
 
   void addRealData(const string fileName, const double lumi);
 
-  void addCutStep(const TCut cut, const TString & monitorPlotNamesStr, const double plotScale = 1.0, const string weight = "1", const TString& cutName = "", const TString& postfix = "", const TCut subCut = "1");
+  void addCutStep(const TCut cut, const TString & monitorPlotNamesStr, const double plotScale = 1.0, const string weight = "1", const TString& cutName = "", const TString& postfix = "");
   void addMonitorPlot(const string name, const string varexp, const string title,
                       const int nBins, const double xmin, const double xmax,
                       const double ymin = 0, const double ymax = 0, const bool doLogy = true);
@@ -114,7 +114,6 @@ private:
     string weight;
     TString cutName;
     TString postfix;
-    TCut subCut;
   };
 
   struct Stat
@@ -362,7 +361,7 @@ if ( !realDataChain_ )
   realDataChain_->Add(fileName.c_str());
 }
 
-void TopAnalyzerLite::addCutStep(const TCut cut, const TString & monitorPlotNamesStr, const double plotScale, const string weight, const TString& cutName, const TString& postfix, TCut subCut)
+void TopAnalyzerLite::addCutStep(const TCut cut, const TString & monitorPlotNamesStr, const double plotScale, const string weight, const TString& cutName, const TString& postfix)
 {
   TObjArray* monitorPlotNames = monitorPlotNamesStr.Tokenize(",");
   const int nPlots = monitorPlotNames->GetSize();
@@ -381,7 +380,7 @@ void TopAnalyzerLite::addCutStep(const TCut cut, const TString & monitorPlotName
   int nstep = (int)cuts_.size()+1; 
   TString dirName = cutName;
   if( cutName == "" ) dirName = Form("Step_%d", nstep); 
-  CutStep cutStep = {cut, plotNames, plotScale, weight, dirName, postfix, subCut};
+  CutStep cutStep = {cut, plotNames, plotScale, weight, dirName, postfix};
   cuts_.push_back(cutStep);
 }
 
@@ -425,15 +424,13 @@ void TopAnalyzerLite::applyCutSteps()
   for ( unsigned int i=0; i<mcSigs_.size(); ++i )
   {
     MCSample& mcSample = mcSigs_[i];
-    double effL = mcSample.nEvents/mcSample.xsec;
-    cout << " * " << mcSample.name << "\t" << mcSample.xsec << " pb (" << effL << " /pb, " << mcSample.nEvents << ")\n";
+    cout << " * " << mcSample.name << "\t" << mcSample.xsec << " /pb (" << mcSample.nEvents << ")\n";
     if ( writeSummary_ ) fout_ << " * " << mcSample.name << "\t" << mcSample.xsec << " /pb (" << mcSample.nEvents << ")\n";
   }
   for ( unsigned int i=0; i<mcBkgs_.size(); ++i )
   {
     MCSample& mcSample = mcBkgs_[i];
-    double effL = mcSample.nEvents/mcSample.xsec;
-    cout << " * " << mcSample.name << "\t" << mcSample.xsec << " pb (" << effL << " /pb, " << mcSample.nEvents << ")\n";
+    cout << " * " << mcSample.name << "\t" << mcSample.xsec << " /pb (" << mcSample.nEvents << ")\n";
     if ( writeSummary_ ) fout_ << " * " << mcSample.name << "\t" << mcSample.xsec << " /pb (" << mcSample.nEvents << ")\n";
   }
   cout << "--------------------------------------\n";
@@ -442,13 +439,14 @@ void TopAnalyzerLite::applyCutSteps()
   TCut cut = "";
   for ( unsigned int i=0; i<cuts_.size(); ++i )
   {
-    cut = cut && cuts_[i].cut;
+    if( printstats_ ) cut = cuts_[i].cut;
+    else cut = cut && cuts_[i].cut;
     const vector<string>& monitorPlotNames = cuts_[i].monitorPlotNames;
     const double plotScale = cuts_[i].plotScale;
     const string w = cuts_[i].weight;
     TString cname = cuts_[i].cutName;
     TString postfix = cuts_[i].postfix;
-    prepareEventList(cut, i);
+    if( printstats_ ) prepareEventList(cut, i);
     if( printstats_ ) printStat(Form("%s", cname.Data() ), cut, i);
     for ( unsigned int j = 0; j < monitorPlotNames.size(); ++ j)
     {
@@ -456,7 +454,7 @@ void TopAnalyzerLite::applyCutSteps()
 
       if ( monitorPlots_.find(plotName) == monitorPlots_.end() ) continue;
       MonitorPlot& monitorPlot = monitorPlots_[plotName];
-      plot(Form("%s_%s%s", cname.Data(), plotName.c_str(), postfix.Data() ), cuts_[i].subCut, monitorPlot, lumi_*plotScale, i, w);
+      plot(Form("%s_%s%s", cname.Data(), plotName.c_str(), postfix.Data() ), cut, monitorPlot, lumi_*plotScale, i, w);
     }
   }
 
@@ -473,7 +471,7 @@ void TopAnalyzerLite::applyCutSteps()
     //cout << "Number of entries after final selection = " << entryList_["realdata"].back()->GetN() << endl;
   //}
 
-  if ( writeSummary_ && realDataChain_ && printstats_ )
+  if ( writeSummary_ && realDataChain_ )
   {
 
     printCutFlow();
@@ -513,7 +511,7 @@ void TopAnalyzerLite::plot(const string name, const TCut cut, MonitorPlot& monit
   TH1F* hData = new TH1F(dataHistName, title.c_str(), nBins, xBins);
   histograms_.Add(hData);
 
-  if ( realDataChain_ ) realDataChain_->Project(dataHistName, varexp.c_str(), cut);
+  if ( realDataChain_ ) realDataChain_->Project(dataHistName, varexp.c_str());
   hData->AddBinContent(nBins, hData->GetBinContent(nBins+1));
   hData->Sumw2();
   hData->SetMarkerStyle(20);
@@ -533,16 +531,13 @@ void TopAnalyzerLite::plot(const string name, const TCut cut, MonitorPlot& monit
   LabeledPlots stackedPlots;
   LabeledPlots sigPlots; // Keep list of signal plots if doStackSignal == false
 
-  TString cutStr;
-  cutStr = cut;
-
   for ( unsigned int i=0; i<mcSigs_.size(); ++i )
   {
     MCSample& mcSample = mcSigs_[i];
     TString mcSigHistName = Form("hMCSig_%s_%s", mcSample.name.c_str(), name.c_str());
     TH1F* hMCSig = new TH1F(mcSigHistName, title.c_str(), nBins, xBins);
 
-    TCut mcWeightStr = Form("(%s)*(%s)*(%s)", eventWeightVar_.c_str(),weight.c_str(),cutStr.Data());
+    TCut mcWeightStr = Form("(%s)*(%s)", eventWeightVar_.c_str(),weight.c_str());
     mcSample.chain->Project(mcSigHistName, varexp.c_str(),mcWeightStr);
     hMCSig->AddBinContent(nBins, hMCSig->GetBinContent(nBins+1));
     hMCSig->Scale(lumi_*mcSample.xsec/mcSample.nEvents);
@@ -597,7 +592,7 @@ void TopAnalyzerLite::plot(const string name, const TCut cut, MonitorPlot& monit
     TString mcHistName = Form("hMC_%s_%s", mcSample.name.c_str(), name.c_str());
     TH1F* hMC = new TH1F(mcHistName, title.c_str(), nBins, xBins);
 
-    TCut mcWeightStr = Form("(%s)*(%s)*(%s)", eventWeightVar_.c_str(), weight.c_str(), cutStr.Data());
+    TCut mcWeightStr = Form("(%s)*(%s)", eventWeightVar_.c_str(), weight.c_str());
     mcSample.chain->Project(mcHistName, varexp.c_str(),mcWeightStr);
     hMC->AddBinContent(nBins, hMC->GetBinContent(nBins+1));
     hMC->Scale(lumi_*mcSample.xsec/mcSample.nEvents);
@@ -653,7 +648,7 @@ void TopAnalyzerLite::plot(const string name, const TCut cut, MonitorPlot& monit
     TString histName = Form("hDataBkg_%s_%s", sample.name.c_str(), name.c_str());
     TH1F* hBkg = new TH1F(histName, title.c_str(), nBins, xBins);
 
-    sample.chain->Project(histName, varexp.c_str(), cut);
+    sample.chain->Project(histName, varexp.c_str());
     hBkg->AddBinContent(nBins, hBkg->GetBinContent(nBins+1));
     hBkg->Scale(sample.norm);
 
@@ -970,7 +965,7 @@ void TopAnalyzerLite::applySingleCut(const TCut cut, const TString monitorPlotNa
   cout << "----------------------------\n";
   cout << "Result of single cut" << endl;
   cout << "Cut = " << cut << endl;
-  prepareEventList(cut, istep);
+  if( printstats_ ) prepareEventList(cut, istep);
   if( printstats_ ) printStat(Form("SingleCut_%d", singleCutUniqueId), cut, istep);
   for ( int i=0; i<nPlots; ++i )
   {
@@ -1027,11 +1022,10 @@ void TopAnalyzerLite::saveHistograms(TString fileName)
     if ( !dir ) {
       dir = f->mkdir(dirName);
       dir->cd();
-      cut += cuts_[i].cut; 
+      if(printstats_) cut = cuts_[i].cut; 
+      else cut += cuts_[i].cut;
       TNamed cutStr("cut", cut);
       cutStr.Write();
-      TNamed subCutStr("subCut", cuts_[i].subCut);
-      subCutStr.Write();
       dirNames.push_back(dirName);
     }
   }

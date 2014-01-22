@@ -13,7 +13,7 @@
 //
 // Original Author:  Tae Jeong Kim
 //         Created:  Mon Dec 14 01:29:35 CET 2009
-// $Id: CMGElectronFilter.cc,v 1.6 2013/02/07 21:28:11 tjkim Exp $
+// $Id: CMGElectronFilter.cc,v 1.7 2013/03/10 21:39:18 tjkim Exp $
 //
 //
 
