@@ -1,403 +1,137 @@
-#include <iostream>
-#include <iomanip>
-#include "tdrstyle.C"
+#ifndef __CINT__
+#include "RooGlobalFunc.h"
+#endif
+#include "RooRealVar.h"
+#include "RooDataSet.h"
+#include "RooGaussian.h"
+#include "RooChebychev.h"
+#include "RooAddPdf.h"
+#include "TCanvas.h"
+#include "TAxis.h"
+#include "RooPlot.h"
+#include "RooFitResult.h"
 
-TFile* fEE, * fME, * fMM;
-TString outDirName = ".";
-
-const int nBkg = 8;
-const char* bkgNames[] = {"hMC_TTbarcc","hMC_TTbarll","hMC_TTbarOthers","hMC_Wl", "hMC_VV", "hMC_SingleTop", "hMC_DYll","hDataBkg_QCD"};
-const char* bkgLabels[] = {
-  "t#bar{t}+cc", "t#bar{t}+ll","t#bar{t} others","W #rightarrow l#nu", "Dibosons", "Single top", "Z/#gamma* #rightarrow ll","QCD"
-};
-
-const int nSig = 1;
-const char* sigNames[] = {"hMCSig_TTbarbb"};
-const char* sigLabels[] = {"t#bar{t}+bb"};
-bool stackSig = true;
+using namespace RooFit ;
 
 void cutStepPlots(const char* cutStep, const char* histName, const char* histTitle,
                   double minY, double maxY, bool doLogY);
 TLegend* buildLegend();
 TPaveText* getHeader(double lumi, TString channelName = "");
 
-void makePlots(TString noteNumber = "TTBB_01Sep2012/v1")
+void makePlots(TString noteNumber = "Plots")
 {
-  setTDRStyle();
+  //setTDRStyle();
 
-  TString path = "TTBB_01Sep2012";
+  TString path = "TopMass_noLcut_PYMG";
+  //TString path = "TopMass_Lcut002_PYMG";
 
-  fEE = TFile::Open(path+"/ElEl/ElEl.root");
-  fME = TFile::Open(path+"/MuEl/MuEl.root");
-  fMM = TFile::Open(path+"/MuMu/MuMu.root");
+ //jkim
+    TFile *f1 =  new TFile("./All.root");
+    TH1F *hmFit = (TH1F*)f1->Get("Step_5/hData_Step_5_JPsiMassFit");
+    
 
-  if ( !fEE || !fME || !fMM ) return;
+    RooRealVar mass("mass","mass_{#mu^{+}#mu^{-}}(GeV/c^{2})",2.8,3.4) ;
 
-  outDirName += "/"+noteNumber;
-  gSystem->Exec("mkdir "+outDirName);
+    RooRealVar mean("mean","Gaussian mean",3.096,3.0,3.2) ;
+    RooRealVar sigma1("sigma1","sigma1",0.017,0.01,0.024) ;
+    RooRealVar sigma2("sigma2","width of gaussians",0.04) ;
 
-/*
-  cutStepPlots("Step_1", "Iso03lep1", "Relative Isolation (GeV)", 1, 1e12, true);
-  cutStepPlots("Step_1", "Iso03lep2", "Relative Isolation (GeV)", 1, 1e12, true);
-  cutStepPlots("Step_3", "pt1", "Leading lepton p_{T};p_{T} (GeV/c);Events/10 GeV/c", 0.1, 1e12, true);
-  cutStepPlots("Step_3", "pt2", "Second leading lepton p_{T};p_{T} (GeV/c);Events/10 GeV/c", 0.1, 1e12, true);
-  cutStepPlots("Step_3", "eta1", "Leading lepton #eta;#eta (GeV/c);Events/10 GeV/c", 0.1, 1e12, true);
-  cutStepPlots("Step_3", "eta2", "Second leading lepton #eta;#eta (GeV/c);Events/10 GeV/c", 0.1, 1e12, true);
-  cutStepPlots("Step_3", "jet1pt", "Leading jet p_{T};p_{T} (GeV/c);Events/10 GeV/c", 0.1, 1e12, true);
-  cutStepPlots("Step_3", "jet2pt", "Second leading jet p_{T};p_{T} (GeV/c);Events/10 GeV/c", 0.1, 1e12, true);
-  cutStepPlots("Step_3", "jet1eta", "Leading jet #eta;#eta (GeV/c);Events/10 GeV/c", 0.1, 1e12, true);
-  cutStepPlots("Step_3", "jet2eta", "Second leading jet #eta;#eta (GeV/c);Events/10 GeV/c", 0.1, 1e12, true);
-  cutStepPlots("Step_3", "nVertex", "Vertex multiplicity", 0, 2e6, false);
-  cutStepPlots("Step_3", "METlog", "Missing E_{T}", 1, 1e9, true);
-  cutStepPlots("Step_3", "nJetlog", "Jet multiplicity", 1, 1e9, true);
-  cutStepPlots("Step_3", "ZMass", "Z mass", 1, 1e9, true);
-  cutStepPlots("Step_4", "METlog", "Missing E_{T}", 1, 1e10, true);
-  cutStepPlots("Step_4", "nJetlog", "Jet multiplicity", 1, 1e9, true);
-  cutStepPlots("Step_5", "MET", "Missing E_{T}", 1, 1e10, true);
-*/
-//  cutStepPlots("Step_5", "nJet", "Jet multiplicity", 1, 1e6, true);
-//  cutStepPlots("Step_6", "nbJet_CSVL", "b-Jet multiplicity(CSVL)", 1, 1e6, true);
-//  cutStepPlots("Step_5", "nbJet30_CSVM", "b-Jet multiplicity(CSVM)", 1, 1e6, true);
-//  cutStepPlots("Step_6", "nbJet_CSVT", "b-Jet multiplicity(CSVT)", 1, 1e6, true);
+    RooGaussian sig("sig","signal",mass,mean,sigma1);
+    RooGaussian sig2("sig2","signal2",mass,mean,sigma2);
 
-  cutStepPlots("Step_1", "nJet", "Jet multiplicity", 0, 5000000, false);
-  cutStepPlots("Step_2", "nJet", "Jet multiplicity", 0, 500000, false);
-  cutStepPlots("Step_3", "nJet", "Jet multiplicity", 0, 5000, false);
-  cutStepPlots("Step_4", "nJet", "Jet multiplicity", 0, 5000, false);
-  cutStepPlots("Step_5", "nJet", "Jet multiplicity", 0, 5000, false);
+	//RooRealVar sig1frac("sig1frac","fraction of component 1 in signal",0.5,0.,1.) ;
+	//RooAddPdf sig("sig","Signal",RooArgList(sig1,sig2),sig1frac) ;
+    RooRealVar nsig("nsig","yield signal peak",100,0,1000);
 
-//  cutStepPlots("Step_6", "jet1pt", "Leading jet p_{T};p_{T} (GeV/c);Events/10 GeV/c", 0.1, 1e6, true);
-//  cutStepPlots("Step_6", "jet2pt", "Second jet p_{T};p_{T} (GeV/c);Events/10 GeV/c", 0.1, 1e6, true);
-//  cutStepPlots("Step_6", "jet3pt", "Third jet p_{T};p_{T} (GeV/c);Events/10 GeV/c", 0.1, 1e6, true);
-//  cutStepPlots("Step_6", "jet4pt", "Fourth jet p_{T};p_{T} (GeV/c);Events/10 GeV/c", 0.1, 1e6, true);
+    RooRealVar pol_c1("pol_c1", "slope of background", 0., -10., 10.);
+    RooPolynomial pol("pol","polynomial",mass,RooArgList(pol_c1));
+    RooRealVar nbkg("nbkg","yield of background",10,0,1000);
+   
+    //RooRealVar sigfrac("sigfrac","fraction of signal",0.5,0.,1.) ;
+    //RooAddPdf sig("sig","Double Gaussian for signal",RooArgList(gauss1,gauss2),sigfrac);
+    //RooRealVar bkgfrac("bkgfrac","fraction of background",0.9,0.,1.) ;
 
-//  cutStepPlots("Step_6", "nbJet_CSVL", "b-Jet multiplicity(CSVL)", 0.1, 1e6, true);
-//   cutStepPlots("Step_6", "nbJet20_CSVM", "b-Jet multiplicity(CSVM)", 0.01, 1e6, true);
-//  cutStepPlots("Step_6", "nbJet_CSVT", "b-Jet multiplicity(CSVT)", 0.1, 1e6, true);
- 
-//  cutStepPlots("Step_6", "nbJet_CSVL", "b-Jet multiplicity(CSVL)", 0, 500, false);
-//  cutStepPlots("Step_6", "nbJet_CSVM", "b-Jet multiplicity(CSVM)", 0, 3000, false);
-//  cutStepPlots("Step_6", "nbJet_CSVT", "b-Jet multiplicity(CSVT)", 0, 3000, false);
+    //RooAddPdf  model("model","g+l",RooArgList(gauss,landau),sigfrac);
+    //RooAddPdf  model("model","g1+g2",RooArgList(gauss1,gauss2),sigfrac);
 
-  //cutStepPlots("Step_6", "MET", "Missing E_{T}", 1, 1e10, true); 
-  //cutStepPlots("Step_6", "vsumM", "t#bar{t} invariant mass", 0, 7000, false);
-  //cutStepPlots("Step_7", "nJet", "Jet multiplicity", 1, 1e6, true);
-  //cutStepPlots("Step_7", "vsumM", "t#bar{t} invariant mass", 0, 6000, false);
-  //cutStepPlots("Step_7", "vsumMAlt", "t#bar{t} invariant mass", 0, 7000, false);
-  //cutStepPlots("Step_7", "vsumMhigh", "t#bar{t} invariant mass", 1, 1e5, true);
-  //cutStepPlots("Step_7", "MET", "Missing E_{T}", 0, 900, false);
+    RooArgList shapes;
+    RooArgList yields;
+    shapes.add(pol);
+    yields.add(nbkg);
+    shapes.add(sig);
+    yields.add(nsig);
 
-  printCutFlow(path,"MuMu", "nbJet30_CSVM,nbJet30_CSVM,nbJet30_CSVM,nbJet30_CSVM,nbJet30_CSVM");
-  printCutFlow(path,"ElEl", "nbJet30_CSVM,nbJet30_CSVM,nbJet30_CSVM,nbJet30_CSVM,nbJet30_CSVM" );
-  printCutFlow(path,"MuEl", "nbJet30_CSVM,nbJet30_CSVM,nbJet30_CSVM,nbJet30_CSVM,nbJet30_CSVM");
+    RooAddPdf model("model","g1+g2+pol",shapes,yields);
+    RooDataHist dhdata("dhdata","dhdata",mass,Import(*hmFit)) ;
 
-  //printCutFlow("MuMu", "-,-,METlog,METlog,MET,nJet,vsumMAlt");
-  //printCutFlow("ElEl", "-,-,METlog,METlog,MET,nJet,vsumMAlt");
-  //printCutFlow("MuEl", "-,-,METlog,METlog,MET,nJet,vsumMAlt");
+    RooFitResult* fitres = model.fitTo(dhdata,Extended()) ;
 
-  // Restore back DY scaling and apply +50% scaling
-  //rescalePlots("Step_3", "DYll", "METlog,nJetlog,ZMass", 1/1.04*(1+.04*.5), 1/1.04*(1+.04*.5), 1);
-  //rescalePlots("Step_4", "DYll", "METlog"              , 1/1.34*(1+.34*.5), 1/1.34*(1+.34*.5), 1);
-  //rescalePlots("Step_5", "DYll", "MET"                 , 1/1.87*(1+.87*.5), 1/1.91*(1+.91*.5), 1);
-  //rescalePlots("Step_6", "DYll", "nJet,vsumMAlt"       , 1/1.51*(1+.51*.5), 1/1.91*(1+.91*.5), 1);
-  //rescalePlots("Step_7", "DYll", "nbJet,vsumMAlt,MET"  , 1/1.51*(1+.51*.5), 1/1.91*(1+.91*.5), 1);
+    RooPlot* frame = mass.frame(Title("J/#psi Mass")) ;
+	frame->SetTitle("");
+	frame->GetYaxis()->SetTitle("Events / 0.01 (GeV/c^{2} )"); 
+    //RooPlot* frame = mass.frame(1.5,7) ;
+    //frame->addTH1(hSigLLMG);
+    //frame->addTH1(hSigLLPY);
+    dhdata.plotOn(frame,DataError(RooAbsData::SumW2),XErrorSize(0)) ;
+    //sig.plotOn(frame);
+    model.plotOn(frame,LineColor(kRed)) ;
+    model.plotOn(frame,Components(pol),LineColor(kBlue),LineStyle(kDashed)) ;
+    model.plotOn(frame,Components(sig),LineColor(kBlue)) ;
+    //model.paramOn(frame,dhdata);
+    //dhdata.statOn(frame);
 
-  //printCutFlow(path,"MuMu", "nbJet30_CSVM,nbJet30_CSVM,nbJet30_CSVM,nbJet30_CSVM,nbJet30_CSVM");
-  //printCutFlow(path,"ElEl", "nbJet30_CSVM,nbJet30_CSVM,nbJet30_CSVM,nbJet30_CSVM,nbJet30_CSVM" );
-  //printCutFlow(path,"MuEl", "nbJet30_CSVM,nbJet30_CSVM,nbJet30_CSVM,nbJet30_CSVM,nbJet30_CSVM");
+    TCanvas* c1 = new TCanvas("c1","Fitting of JPsi Mass",800,600) ;
+    //TLegend* leg = buildLegend();
+	//frame->addObject(leg);
+    frame->addObject(getHeader(19.6, "ee/#mu#mu/e#mu"));
+    frame->Draw();
+    c1->Print("cLL_fitJpsi.pdf");
+    c1->Print("cLL_fitJpsi.eps");
+    c1->Print("cLL_fitJpsi.png");
 
-  // Restore back DY scaling again, and apply -50%
-  //rescalePlots("Step_3", "DYll", "METlog,nJetlog,ZMass", 1/(1+.04*.5)*(1-.04*.5), 1/(1+.04*.5)*(1-.04*.5), 1);
-  //rescalePlots("Step_4", "DYll", "METlog"              , 1/(1+.34*.5)*(1-.34*.5), 1/(1+.34*.5)*(1-.34*.5), 1);
-  //rescalePlots("Step_5", "DYll", "MET"                 , 1/(1+.87*.5)*(1-.87*.5), 1/(1+.91*.5)*(1-.91*.5), 1);
-  //rescalePlots("Step_6", "DYll", "nJet,vsumMAlt"       , 1/(1+.51*.5)*(1-.51*.5), 1/(1+.91*.5)*(1-.91*.5), 1);
-  //rescalePlots("Step_7", "DYll", "nbJet,vsumMAlt,MET"  , 1/(1+.51*.5)*(1-.51*.5), 1/(1+.91*.5)*(1-.91*.5), 1);
-
-  //printCutFlow("MuMu", "-,-,METlog,METlog,MET,vsumMAlt,vsumMAlt");
-  //printCutFlow("ElEl", "-,-,METlog,METlog,MET,vsumMAlt,vsumMAlt");
-  //printCutFlow("MuEl", "-,-,METlog,METlog,MET,vsumMAlt,vsumMAlt");
-}
-
-void printCutFlow(TString path, TString decayMode, TString histNamesStr)
-{
-  TFile* f = gROOT->GetFile(path + "/"+decayMode+"/"+decayMode+".root");
-  if ( !f ) f = TFile::Open(path + "/"+decayMode+"/"+decayMode+".root");
-
-  TObjArray* histNames = histNamesStr.Tokenize(",");
-  std::vector<double> nBkgTotal(histNames->GetEntries());
-  std::vector<double> nMCTotal(histNames->GetEntries());
-
-  // Pretty printing
-  int maxLabelWidth = 0;
-  for ( int i=0; i<nBkg; ++i )
-  {
-    const int labelWidth = strlen(bkgLabels[i]);
-    if ( labelWidth > maxLabelWidth ) maxLabelWidth = labelWidth;
-  }
-  TString labelForm = Form("%%%ds", maxLabelWidth);
-
-  cout << "========================================= " << decayMode << " =========================================\n";
-  cout << Form(labelForm.Data(), "-");
-  for ( int i=0; i<histNames->GetEntries(); ++i )
-  {
-    cout << Form("\tStep_%d", i+1);
-  }
-
-  cout << "\n----------------------------------------------------------------------------------------\n";
-
-  for ( int i=0; i<nBkg; ++i )
-  {
-    cout << Form(labelForm.Data(), bkgLabels[i]);
-    for ( int j=0; j<histNames->GetEntries(); ++j )
-    {
-      TString histName = histNames->At(j)->GetName();
-      TH1F* hMC = (TH1F*)f->Get(Form("Step_%d/%s_Step_%d_%s", j+1, bkgNames[i], j+1, histName.Data()));
-      if ( !hMC ) 
-      {
-        cout << "\t-";
-        continue;
-      }
-
-      nBkgTotal[j] += hMC->Integral();
-      if( hMC->Integral() > 1000 ) cout << fixed << setprecision (0) << '\t' << hMC->Integral(); 
-      else cout << fixed << setprecision (2) << '\t' << hMC->Integral();
+    TFile *f2 =  new TFile("./ALL_noLcut/dimuonmass-2l1jpsi1jet.root");
+    TCanvas* c2 = new TCanvas("c2","Dimuon mass in [0,10] GeV/c^{2}",1000,600) ;
+    TH1F *hmassfull =  (TH1F*)f2->Get("hData_Step_4_JPsiMassFull");
+    TH1F *h = new TH1F("h","",1000,0,10);
+    for(int i=0;i<1000;i++) {
+	//cout<<i<<" : "<<hmassfull->GetBinContent(i+1)<<endl;
+	h->SetBinContent(i+1, hmassfull->GetBinContent(i+1));
     }
-    cout << "\n";
-  }
+	gStyle->SetOptStat(0);
+	h->GetXaxis()->SetTitle("mass_{#mu^{+}#mu^{-}}(GeV/c^{2})");
+	h->GetYaxis()->SetTitle("Events / 0.04 (GeV/c^{2})");
+    h->SetLineWidth(2);
+   	h->Rebin(4);
+	h->Draw();
+	getHeader(19.6, "ee/#mu#mu/e#mu")->Draw();
 
-  cout << "----------------------------------------------------------------------------------------\n";
-  const char* sigName = sigNames[0];
-  cout << Form(labelForm.Data(), sigLabels[0]);
-  for ( int i=0; i<histNames->GetEntries(); ++i )
-  {
-    TString histName = histNames->At(i)->GetName();
+	pt1 = new TPaveText(3.27478,28.1593,4.015056,29.62976,"br");
+	pt1->SetBorderSize(0);
+	pt1->SetFillColor(0);
+	pt1->SetFillStyle(0);
+	pt1->SetTextSize(0.035);
+	pt1->AddText("J/#psi");
+	pt1->Draw();
 
-    TH1F* hSig = (TH1F*)f->Get(Form("Step_%d/%s_Step_%d_%s", i+1, sigName, i+1, histName.Data()));
-    if ( !hSig )
-    {
-      cout << "\t-";
-      continue;
-    }
+/*	pt2 = new TPaveText(3.493976,2.059615,4.083835,3.190843,"br");
+	pt2->SetBorderSize(0);
+	pt2->SetFillColor(0);
+	pt2->SetFillStyle(0);
+	pt2->SetTextSize(0.035);
+	pt2->AddText("#psi'");
+	pt2->Draw();*/
 
-    nMCTotal[i] = nBkgTotal[i]+hSig->Integral();
-    if( hSig->Integral() > 1000) cout << fixed << setprecision(0) << '\t' << hSig->Integral();
-    else cout << fixed << setprecision(2) << '\t' << hSig->Integral();
-  }
-
-  cout << "\n----------------------------------------------------------------------------------------\n";
-  cout << Form(labelForm.Data(), "Bkg total");
-  for ( int i=0; i<histNames->GetEntries(); ++i )
-  {
-    if( nBkgTotal[i] > 1000) cout << fixed << setprecision(0) << '\t' << nBkgTotal[i];
-    else cout << fixed << setprecision(2) << '\t' << nBkgTotal[i];
-  }
-  cout << '\n';
-  cout << Form(labelForm.Data(), "MC total");
-  for ( int i=0; i<histNames->GetEntries(); ++i )
-  {
-    if( nMCTotal[i] > 1000) cout << fixed << setprecision(0) << '\t' << nMCTotal[i];
-    else cout << fixed << setprecision(2) << '\t' << nMCTotal[i];
-  }
-  cout << "\n----------------------------------------------------------------------------------------\n";
-
-  cout << Form(labelForm.Data(), "Data");
-  for ( int i=0; i<histNames->GetEntries(); ++i )
-  {
-    TString histName = histNames->At(i)->GetName();
-
-    TH1F* hData = (TH1F*)f->Get(Form("Step_%d/hData_Step_%d_%s", i+1, i+1, histName.Data()));
-    if ( !hData )
-    {
-      cout << "\t-";
-      continue;
-    }
-
-    cout << fixed << setprecision(0) << '\t' << hData->Integral();
-  }
-  cout << "\n========================================================================================\n\n";
+	c2->Modified();
+	c2->Print("dimuonmass.pdf");
+	c2->Print("dimuonmass.png");
+	c2->Print("dimuonmass.eps");
+	
 }
 
-void rescalePlots(TString cutStep, TString bkgName, TString histNamesStr, double mumuScale, double elelScale, double muelScale)
-{
-  TObjArray* histNames = histNamesStr.Tokenize(",");
-
-  for ( int i=0; i<histNames->GetEntries(); ++i )
-  {
-    TString histName = histNames->At(i)->GetName();
-
-    TH1F* hEE = (TH1F*)fEE->Get(Form("%s/hMC_%s_%s_%s", cutStep.Data(), bkgName.Data(), cutStep.Data(), histName.Data()));
-    TH1F* hME = (TH1F*)fME->Get(Form("%s/hMC_%s_%s_%s", cutStep.Data(), bkgName.Data(), cutStep.Data(), histName.Data()));
-    TH1F* hMM = (TH1F*)fMM->Get(Form("%s/hMC_%s_%s_%s", cutStep.Data(), bkgName.Data(), cutStep.Data(), histName.Data()));
-
-    if ( !hEE || !hME || !hMM ) continue;
-
-    hEE->Scale(elelScale);
-    hMM->Scale(mumuScale);
-    hME->Scale(muelScale);
-  }
-}
-
-// Function to draw EE, ME, MM channel and all channel merged plot
-void cutStepPlots(const char* cutStep, const char* histName, const char* histTitle,
-                  double minY, double maxY, bool doLogY)
-{
-  TH1F* hDataEE = (TH1F*)fEE->Get(Form("%s/hData_%s_%s", cutStep, cutStep, histName));
-  TH1F* hDataME = (TH1F*)fME->Get(Form("%s/hData_%s_%s", cutStep, cutStep, histName));
-  TH1F* hDataMM = (TH1F*)fMM->Get(Form("%s/hData_%s_%s", cutStep, cutStep, histName));
-
-  if ( !hDataEE ) { cout << Form("%s/hData_%s_%s", cutStep, cutStep, histName) << " for EE " << "\n"; return; }
-  if ( !hDataME ) { cout << Form("%s/hData_%s_%s", cutStep, cutStep, histName) << " for ME " << "\n"; return; }
-  if ( !hDataMM ) { cout << Form("%s/hData_%s_%s", cutStep, cutStep, histName) << " for MM " << "\n"; return; }
-
-  TH1F* hDataLL = (TH1F*)hDataEE->Clone(Form("hData_%s_%s", cutStep, histName));
-  hDataLL->Reset();
-  hDataLL->Add(hDataEE);
-  hDataLL->Add(hDataME);
-  hDataLL->Add(hDataMM);
-
-  THStack* hStackEE = new THStack(TString("hEE_")+cutStep+"_"+histName, histTitle);
-  THStack* hStackME = new THStack(TString("hME_")+cutStep+"_"+histName, histTitle);
-  THStack* hStackMM = new THStack(TString("hMM_")+cutStep+"_"+histName, histTitle);
-  THStack* hStackLL = new THStack(TString("hLL_")+cutStep+"_"+histName, histTitle);
-
-  TH1F* hSigEE = (TH1F*)fEE->Get(Form("%s/%s_%s_%s", cutStep, sigNames[0], cutStep, histName));
-  TH1F* hSigME = (TH1F*)fME->Get(Form("%s/%s_%s_%s", cutStep, sigNames[0], cutStep, histName));
-  TH1F* hSigMM = (TH1F*)fMM->Get(Form("%s/%s_%s_%s", cutStep, sigNames[0], cutStep, histName));
-
-  if ( !hSigEE || !hSigME || !hSigMM ) { cout << "No signal hist for " << histName << "\n"; return; }
-
-  TH1F* hSigLL = (TH1F*)hSigEE->Clone(Form("%s_%s_%s", sigNames[0], cutStep, histName));
-  hSigLL->Reset();
-  hSigLL->Add(hSigEE);
-  hSigLL->Add(hSigME);
-  hSigLL->Add(hSigMM);
-
-  if( stackSig ){
-    hStackEE->Add(hSigEE);
-    hStackME->Add(hSigME);
-    hStackMM->Add(hSigMM);
-    hStackLL->Add(hSigLL);
-  }
-
-  // Build legends
-  TLegend* legEE = buildLegend();
-  TLegend* legME = buildLegend();
-  TLegend* legMM = buildLegend();
-  TLegend* legLL = buildLegend();
-
-  if ( hDataEE->GetEntries() > 0 ) legEE->AddEntry(hDataEE, "Data", "p");
-  if ( hDataME->GetEntries() > 0 ) legME->AddEntry(hDataME, "Data", "p");
-  if ( hDataMM->GetEntries() > 0 ) legMM->AddEntry(hDataMM, "Data", "p");
-  if ( hDataLL->GetEntries() > 0 ) legLL->AddEntry(hDataLL, "Data", "p");
-
-  TH1F* hEEs[nBkg];
-  TH1F* hMEs[nBkg];
-  TH1F* hMMs[nBkg];
-  TH1F* hLLs[nBkg];
-
-  for ( int i=0; i<nBkg; ++i )
-  {
-    TH1F* hEE = (TH1F*)fEE->Get(Form("%s/%s_%s_%s", cutStep, bkgNames[i], cutStep, histName));
-    TH1F* hME = (TH1F*)fME->Get(Form("%s/%s_%s_%s", cutStep, bkgNames[i], cutStep, histName));
-    TH1F* hMM = (TH1F*)fMM->Get(Form("%s/%s_%s_%s", cutStep, bkgNames[i], cutStep, histName));
-
-    if ( !hEE || !hME || !hMM ) { cout << "No bkg hist " << bkgNames[i] << endl; continue; }
-
-    TH1F* hLL = (TH1F*)hEE->Clone(Form("%s_%s_%s", bkgNames[i], cutStep, histName));
-    hLL->Reset();
-    hLL->Add(hEE);
-    hLL->Add(hME);
-    hLL->Add(hMM);
-
-    hEEs[i] = hEE;
-    hMEs[i] = hME;
-    hMMs[i] = hMM;
-    hLLs[i] = hLL;
-
-    hStackEE->Add(hEE);
-    hStackME->Add(hME);
-    hStackMM->Add(hMM);
-    hStackLL->Add(hLL);
-  }
-
-  for ( int i=nBkg-1; i>=0; --i )
-  {
-    legEE->AddEntry(hEEs[i], bkgLabels[i], "f");
-    legME->AddEntry(hMEs[i], bkgLabels[i], "f");
-    legMM->AddEntry(hMMs[i], bkgLabels[i], "f");
-    legLL->AddEntry(hLLs[i], bkgLabels[i], "f");
-  }
-
-  legEE->AddEntry(hSigEE, sigLabels[0], "f");
-  legME->AddEntry(hSigME, sigLabels[0], "f");
-  legMM->AddEntry(hSigMM, sigLabels[0], "f");
-  legLL->AddEntry(hSigLL, sigLabels[0], "f");
-
-
-  // Be ready for draw
-  hDataEE->SetMinimum(minY);
-  hDataME->SetMinimum(minY);
-  hDataMM->SetMinimum(minY);
-  hDataLL->SetMinimum(minY);
-
-  hDataEE->SetMaximum(maxY*0.25);
-  hDataME->SetMaximum(maxY*0.5);
-  hDataMM->SetMaximum(maxY*0.25);
-  hDataLL->SetMaximum(maxY);
-
-  TCanvas* cEE = new TCanvas(TString("cEE_")+cutStep+"_"+histName, TString("cEE_")+cutStep+"_"+histName, 1);
-  if ( doLogY ) cEE->SetLogy();
-  hDataEE->Draw();
-  legEE->Draw();
-  getHeader(5.0, "ee channel")->Draw();
-  hStackEE->Draw("same");
-  hSigEE->Draw("same");
-  hDataEE->Draw("same");
-  hDataEE->Draw("sameaxis");
-  cEE->Print(Form("%s/cEE_%s_%s.eps", outDirName.Data(), cutStep, histName));
-  cEE->Print(Form("%s/cEE_%s_%s.pdf", outDirName.Data(), cutStep, histName));
-
-  TCanvas* cME = new TCanvas(TString("cME_")+cutStep+"_"+histName, TString("cME_")+cutStep+"_"+histName, 1);
-  if ( doLogY ) cME->SetLogy();
-  hDataME->Draw();
-  legME->Draw();
-  getHeader(5.0, "#mue channel")->Draw();
-  hStackME->Draw("same");
-  if( nSig > 0 ) hSigME->Draw("same");
-  hDataME->Draw("same");
-  hDataME->Draw("sameaxis");
-  cME->Print(Form("%s/cME_%s_%s.eps", outDirName.Data(), cutStep, histName));
-  cME->Print(Form("%s/cME_%s_%s.pdf", outDirName.Data(), cutStep, histName));
-
-  TCanvas* cMM = new TCanvas(TString("cMM_")+cutStep+"_"+histName, TString("cMM_")+cutStep+"_"+histName, 1);
-  if ( doLogY ) cMM->SetLogy();
-  hDataMM->Draw();
-  legMM->Draw();
-  getHeader(5.0, "#mu#mu channel")->Draw();
-  hStackMM->Draw("same");
-  hSigMM->Draw("same");
-  hDataMM->Draw("same");
-  hDataMM->Draw("sameaxis");
-  cMM->Print(Form("%s/cMM_%s_%s.eps", outDirName.Data(), cutStep, histName));
-  cMM->Print(Form("%s/cMM_%s_%s.pdf", outDirName.Data(), cutStep, histName));
-
-  TCanvas* cLL = new TCanvas(TString("cLL_")+cutStep+"_"+histName, TString("cLL_")+cutStep+"_"+histName, 1);
-  if ( doLogY ) cLL->SetLogy();
-  hDataLL->Draw();
-  legLL->Draw();
-  getHeader(5.0, "All channel")->Draw();
-  hStackLL->Draw("same");
-  if( !stackSig ) hSigLL->Draw("same");
-  hDataLL->Draw("same");
-  hDataLL->Draw("sameaxis");
-  cLL->Print(Form("%s/cLL_%s_%s.eps", outDirName.Data(), cutStep, histName));
-  cLL->Print(Form("%s/cLL_%s_%s.pdf", outDirName.Data(), cutStep, histName));
-
-}
 
 TLegend* buildLegend()
 {
-  TLegend* leg = new TLegend(0.73,0.57,0.85,0.90,NULL,"brNDC");
+  TLegend* leg = new TLegend(0.67,0.52,0.85,0.85,NULL,"brNDC");
 
   leg->SetBorderSize(1);
   leg->SetTextFont(62);
@@ -413,7 +147,7 @@ TLegend* buildLegend()
 
 TPaveText* getHeader(double lumi, TString channelName)
 {
-  TPaveText* pt = new TPaveText(0.18,0.75,0.18,0.90,"brNDC");
+  TPaveText* pt = new TPaveText(0.6,0.72,0.8,0.88,"brNDC");
 
   pt->SetBorderSize(1);
   pt->SetTextFont(42);
@@ -425,7 +159,7 @@ TPaveText* getHeader(double lumi, TString channelName)
   pt->SetFillStyle(1001);
   pt->SetTextAlign(12);
   pt->AddText("CMS Preliminary");
-  pt->AddText(Form("%.1f fb^{-1} at  #sqrt{s} = 7 TeV", lumi));
+  pt->AddText(Form("%.1f fb^{-1}, #sqrt{s} = 8 TeV", lumi));
   if ( channelName != "" ) pt->AddText(channelName);
 
   return pt;

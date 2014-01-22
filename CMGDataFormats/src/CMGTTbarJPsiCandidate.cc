@@ -68,6 +68,7 @@ void CMGTTbarJPsiCandidate::building( const std::vector<cmg::GenJet>* genJets, c
   std::vector<math::XYZTLorentzVector> tbbJPsilm;
   std::vector<double> priJPsi3DlTrue;
   std::vector<double> secJPsi3DlTrue;
+  //std::vector<double> PsiPID;
   std::vector<double> tbJPsi3DlTrue;
   std::vector<double> tbbJPsi3DlTrue;
   std::vector<double> priJPsippdlTrue;  
@@ -82,7 +83,10 @@ void CMGTTbarJPsiCandidate::building( const std::vector<cmg::GenJet>* genJets, c
   for ( unsigned int ip=0; ip<nParticles; ++ip ) { 
 
     const reco::GenParticle& p = (*genParticles)[ip];
-
+ 
+    /*if(p.pdgId() == 100443){
+      PsiPID.push_back(p.pdgId()); 
+    } */   
     if ( abs(p.pdgId()) == 5 ) { //If p is b,
       bool isLast = isLastbottom(p); //If p(==b)'s daughter is b again, return false.
       if (isLast == true) {

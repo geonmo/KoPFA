@@ -112,6 +112,7 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     muonLabel4_ = iConfig.getParameter<edm::InputTag>("muonLabel4");  //JPsi
     dileptonLabel_ = iConfig.getUntrackedParameter<edm::InputTag>("dileptonLabel");
     jpsiLabel_ = iConfig.getUntrackedParameter<edm::InputTag>("jpsiLabel");
+    ssjpsiLabel_ = iConfig.getUntrackedParameter<edm::InputTag>("ssjpsiLabel");
     lepJPsiLabel1_ = iConfig.getUntrackedParameter<edm::InputTag>("lepJPsiLabel1");
     lepJPsiLabel2_ = iConfig.getUntrackedParameter<edm::InputTag>("lepJPsiLabel2");
     metLabel_ = iConfig.getParameter<edm::InputTag>("metLabel");
@@ -175,12 +176,13 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
 
     Z = new std::vector<vallot::ZCandidate>();
     JPsi = new std::vector<vallot::JPsiCandidate>();
+    ssJPsi = new std::vector<vallot::JPsiCandidate>();
     LepJPsi1 = new std::vector<vallot::LepJPsiCandidate>();
     LepJPsi2 = new std::vector<vallot::LepJPsiCandidate>();
     lep1 = new std::vector<vallot::Lepton>();
     lep2 = new std::vector<vallot::Lepton>();
-    lep3 = new std::vector<vallot::Lepton>();
-    lep4 = new std::vector<vallot::Lepton>();
+    //lep3 = new std::vector<vallot::Lepton>();
+    //lep4 = new std::vector<vallot::Lepton>();
     pfMet = new std::vector<vallot::METCandidate>();
     //ttbar = new std::vector<vallot::TTbarMass>();
 //    ttbarKin = new std::vector<vallot::TTbarDILEvent>();
@@ -222,12 +224,13 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
 
     delete Z;
     delete JPsi;
+    delete ssJPsi;
     delete LepJPsi1;
     delete LepJPsi2;
     delete lep1;
     delete lep2;
-    delete lep3;
-    delete lep4;
+    //delete lep3;
+    //delete lep4;
     delete pfMet;
     delete ttbarGen;
     delete jets;
@@ -271,7 +274,11 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     tree->Branch("ZtauDecay",&ZtauDecay,"ZtauDecay/i");
     tree->Branch("isIso",&isIso,"isIso/d");
     tree->Branch("PairSign",&PairSign,"PairSign/d");
-    tree->Branch("JPsiMass",&JPsiMass,"JPsiMass/d"); //correct me
+    tree->Branch("ssJPsiMass","std::vector<double>",&ssJPsiMass); 
+    tree->Branch("ssJPsiEta","std::vector<double>",&ssJPsiEta);
+    tree->Branch("ssJPsiPt","std::vector<double>",&ssJPsiPt);
+    tree->Branch("ssJPsiPairSign","std::vector<int>",&ssJPsiPairSign);
+    tree->Branch("JPsiMass",&JPsiMass,"JPsiMass/d");
     tree->Branch("JPsiEta",&JPsiEta,"JPsiEta/d");
     tree->Branch("JPsiPt",&JPsiPt,"JPsiPt/d");
     tree->Branch("JPsiPhi",&JPsiPhi,"JPsiPhi/d");
@@ -279,9 +286,11 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     tree->Branch("JPsiPairSign",&JPsiPairSign,"JPsiPairSign/d");
     tree->Branch("JPsiJetMinDR",&JPsiJetMinDR,"JPsiJetMinDR/d");
     tree->Branch("JPsiJetMinDPhi",&JPsiJetMinDPhi,"JPsiJetMinDPhi/d");
+    tree->Branch("JPsiJetDPtFrac",&JPsiJetDPtFrac,"JPsiJetDPtFrac/d");
+    tree->Branch("JPsiJetJPsiPtFrac",&JPsiJetJPsiPtFrac,"JPsiJetJPsiPtFrac/d");
     tree->Branch("JPsivProb",&JPsivProb,"JPsivProb/d");
     tree->Branch("JPsidlPV",&JPsidlPV,"JPsidlPV/d");
-    //tree->Branch("JPsidlErrPV",&JPsidlErrPV,"JPsidlErrPV/d");
+    tree->Branch("JPsidlErrPV",&JPsidlErrPV,"JPsidlErrPV/d");
     tree->Branch("JPsippdlPV",&JPsippdlPV,"JPsippdlPV/d");
     tree->Branch("JPsippdlErrPV",&JPsippdlErrPV,"JPsippdlErrPV/d");
     //tree->Branch("JPsippdlBS",&JPsippdlBS,"JPsippdlBS/d");
@@ -289,22 +298,21 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     tree->Branch("JPsiMomIDTrue",&JPsiMomIDTrue,"JPsiMomIDTrue/i");
     tree->Branch("JPsiDlTrue",&JPsiDlTrue,"JPsiDlTrue/d");
     tree->Branch("JPsippdlTrue",&JPsippdlTrue,"JPsippdlTrue/d");
-    tree->Branch("LepJPsiMass1",&LepJPsiMass1,"LepJPsi1Mass1/d");
-    tree->Branch("LepJPsiMass2",&LepJPsiMass2,"LepJPsi2Mass2/d");
+    tree->Branch("LepJPsiMass1",&LepJPsiMass1,"LepJPsiMass1/d");
+    tree->Branch("LepJPsiMass2",&LepJPsiMass2,"LepJPsiMass2/d");
+    tree->Branch("LepJPsiMass",&LepJPsiMass,"LepJPsi2Mass/d");
+    tree->Branch("LepJPsiMassdRLower",&LepJPsiMassdRLower,"LepJPsiMassdRLower/d");
+    tree->Branch("LepJPsiMassdThetaLower",&LepJPsiMassdThetaLower,"LepJPsiMassdThetaLower/d");
+    tree->Branch("LepJPsiMassdPhiLower",&LepJPsiMassdPhiLower,"LepJPsiMassdPhiLower/d");
     tree->Branch("LepJPsidTheta1",&LepJPsidTheta1,"LepJPsidTheta1/d");
     tree->Branch("LepJPsidTheta2",&LepJPsidTheta2,"LepJPsidTheta2/d");
-    tree->Branch("LepJPsidThetalower",&LepJPsidThetalower,"LepJPsidThetalower/d");
-    tree->Branch("LepJPsidThetabigger",&LepJPsidThetabigger,"LepJPsidThetabigger/d");
     tree->Branch("LepJPsidPhi1",&LepJPsidPhi1,"LepJPsidPhi1/d");
     tree->Branch("LepJPsidPhi2",&LepJPsidPhi2,"LepJPsidPhi2/d");
-    tree->Branch("LepJPsidPhilower",&LepJPsidPhilower,"LepJPsidPhilower/d");
-    tree->Branch("LepJPsidPhibigger",&LepJPsidPhibigger,"LepJPsidPhibigger/d");
     tree->Branch("LepJPsidR1",&LepJPsidR1,"LepJPsidR1/d");
     tree->Branch("LepJPsidR2",&LepJPsidR2,"LepJPsidR2/d");
-    tree->Branch("LepJPsidRlower",&LepJPsidRlower,"LepJPsidRlower/d");
-    tree->Branch("LepJPsidRbigger",&LepJPsidRbigger,"LepJPsidRbigger/d");
     //tree->Branch("inJet",&inJet,"inJet/d");
     tree->Branch("nJPsiCand",&nJPsiCand,"nJPsiCand/i");
+    tree->Branch("nssJPsiCand",&nssJPsiCand,"nssJPsiCand/i");
     tree->Branch("nLepJPsiCand1",&nLepJPsiCand1,"nLepJPsiCand1/i");
     tree->Branch("nLepJPsiCand2",&nLepJPsiCand2,"nLepJPsiCand2/i");
 
@@ -340,11 +348,13 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     tree->Branch("lep2_charge",&lep2_charge,"lep2_charge/d");
     tree->Branch("lep3_charge",&lep3_charge,"lep3_charge/d");
     tree->Branch("lep4_charge",&lep4_charge,"lep4_charge/d");
+    tree->Branch("lep3_pixlayers",&lep3_pixlayers,"lep3_pixlayers/i");
+    tree->Branch("lep4_pixlayers",&lep4_pixlayers,"lep4_pixlayers/i");
     tree->Branch("lepweight",&lepweight,"lepweight/d");
 
     //tree->Branch("jets_secvtxmass","std::vector<double>",&jets_secvtxmass);
-    tree->Branch("jets_Lxy","std::vector<double>",&jets_Lxy);
-    tree->Branch("jets_LxyErr","std::vector<double>",&jets_LxyErr);
+    //tree->Branch("jets_Lxy","std::vector<double>",&jets_Lxy);
+    //tree->Branch("jets_LxyErr","std::vector<double>",&jets_LxyErr);
     tree->Branch("jets_pt","std::vector<double>",&jets_pt);
     tree->Branch("jets_eta","std::vector<double>",&jets_eta);
     tree->Branch("jets_phi","std::vector<double>",&jets_phi);
@@ -400,13 +410,13 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     tree->Branch("nGenJet20",&nGenJet20,"nGenJet20/i");
     tree->Branch("nGenbJet20",&nGenbJet20,"nGenbJet20/i");
 
-    tree->Branch("genLep1_pt",&genLep1_pt,"genLep1_pt/d");
+/*    tree->Branch("genLep1_pt",&genLep1_pt,"genLep1_pt/d");
     tree->Branch("genLep2_pt",&genLep2_pt,"genLep2_pt/d");
     tree->Branch("genbquark1_pt",&genbquark1_pt,"genbquark1_pt/d");
     tree->Branch("genbquark2_pt",&genbquark2_pt,"genbquark2_pt/d");
     tree->Branch("gentquark1_pt",&gentquark1_pt,"gentquark1_pt/d");
     tree->Branch("gentquark2_pt",&gentquark2_pt,"gentquark2_pt/d");
-    /*tree->Branch("genJPsi1_pt",&genJPsi1_pt,"genJPsi1_pt/d");
+*/    /*tree->Branch("genJPsi1_pt",&genJPsi1_pt,"genJPsi1_pt/d");
     tree->Branch("genJPsi2_pt",&genJPsi2_pt,"genJPsi2_pt/d");
     tree->Branch("genJPsiB1_pt",&genJPsiB1_pt,"genJPsiB1_pt/d");
     tree->Branch("genJPsiB2_pt",&genJPsiB2_pt,"genJPsiB2_pt/d");
@@ -414,7 +424,7 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     tree->Branch("genJPsiLep1M_pt",&genJPsiLep1M_pt,"genJPsiLep1M_pt/d");
     tree->Branch("genJPsiLep2P_pt",&genJPsiLep2P_pt,"genJPsiLep2P_pt/d");
     tree->Branch("genJPsiLep2M_pt",&genJPsiLep2M_pt,"genJPsiLep2M_pt/d");*/
-    tree->Branch("genpriJPsi_pt",&genpriJPsi_pt,"genpriJPsi_pt/d");
+/*    tree->Branch("genpriJPsi_pt",&genpriJPsi_pt,"genpriJPsi_pt/d");
     tree->Branch("gensecJPsi_pt",&gensecJPsi_pt,"gensecJPsi_pt/d");
     tree->Branch("gentbJPsi_pt",&gentbJPsi_pt,"gentbJPsi_pt/d");
     tree->Branch("gentbJPsilp_pt",&gentbJPsilp_pt,"gentbJPsilp_pt/d");
@@ -422,7 +432,7 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     tree->Branch("gentbbJPsi_pt",&gentbbJPsi_pt,"gentbbJPsi_pt/d");
     tree->Branch("gentbbJPsilp_pt",&gentbbJPsilp_pt,"gentbbJPsilp_pt/d");
     tree->Branch("gentbbJPsilm_pt",&gentbbJPsilm_pt,"gentbbJPsilm_pt/d");
-
+*/
 /////    tree->Branch("genbquark1_p",&genbquark1_p,"genbquark1_p/d");
 /////    tree->Branch("genbquark2_p",&genbquark2_p,"genbquark2_p/d");
     /*tree->Branch("genJPsi1_p",&genJPsi1_p,"genJPsi1_p/d");
@@ -430,12 +440,13 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     tree->Branch("genJPsiB1_p",&genJPsiB1_p,"genJPsiB1_p/d");
     tree->Branch("genJPsiB2_p",&genJPsiB2_p,"genJPsiB2_p/d");*/
 
-    tree->Branch("genLep1_eta",&genLep1_eta,"genLep1_eta/d");
+/*    tree->Branch("genLep1_eta",&genLep1_eta,"genLep1_eta/d");
     tree->Branch("genLep2_eta",&genLep2_eta,"genLep2_eta/d");
     tree->Branch("genbquark1_eta",&genbquark1_eta,"genbquark1_eta/d");
     tree->Branch("genbquark2_eta",&genbquark2_eta,"genbquark2_eta/d");
     tree->Branch("gentquark1_eta",&gentquark1_eta,"gentquark1_eta/d");
     tree->Branch("gentquark2_eta",&gentquark2_eta,"gentquark2_eta/d");
+*/
 /*    tree->Branch("genJPsi1_eta",&genJPsi1_eta,"genJPsi1_eta/d");
     tree->Branch("genJPsi2_eta",&genJPsi2_eta,"genJPsi2_eta/d");
     tree->Branch("genJPsiB1_eta",&genJPsiB1_eta,"genJPsiB1_eta/d");
@@ -444,7 +455,7 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     tree->Branch("genJPsiLep1M_eta",&genJPsiLep1M_eta,"genJPsiLep1M_eta/d");
     tree->Branch("genJPsiLep2P_eta",&genJPsiLep2P_eta,"genJPsiLep2P_eta/d");
     tree->Branch("genJPsiLep2M_eta",&genJPsiLep2M_eta,"genJPsiLep2M_eta/d");*/
-  tree->Branch("genpriJPsi_eta",&genpriJPsi_eta,"genpriJPsi_eta/d");
+/*  tree->Branch("genpriJPsi_eta",&genpriJPsi_eta,"genpriJPsi_eta/d");
   tree->Branch("gensecJPsi_eta",&gensecJPsi_eta,"gensecJPsi_eta/d");
   tree->Branch("gentbJPsi_eta",&gentbJPsi_eta,"gentbJPsi_eta/d");
   tree->Branch("gentbJPsilp_eta",&gentbJPsilp_eta,"gentbJPsilp_eta/d");
@@ -459,6 +470,7 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     tree->Branch("gentquark2_phi",&gentquark2_phi,"gentquark2_phi/d");
     tree->Branch("genbquark1_phi",&genbquark1_phi,"genbquark1_phi/d");
     tree->Branch("genbquark2_phi",&genbquark2_phi,"genbquark2_phi/d");
+*/
 /*    tree->Branch("genJPsi1_phi",&genJPsi1_phi,"genJPsi1_phi/d");
     tree->Branch("genJPsi2_phi",&genJPsi2_phi,"genJPsi2_phi/d");
     tree->Branch("genJPsiB1_phi",&genJPsiB1_phi,"genJPsiB1_phi/d");
@@ -467,17 +479,17 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     tree->Branch("genJPsiLep1M_phi",&genJPsiLep1M_phi,"genJPsiLep1M_phi/d");
     tree->Branch("genJPsiLep2P_phi",&genJPsiLep2P_phi,"genJPsiLep2P_phi/d");
     tree->Branch("genJPsiLep2M_phi",&genJPsiLep2M_phi,"genJPsiLep2M_phi/d");*/
-  tree->Branch("gentbJPsi_phi",&gentbJPsi_phi,"gentbJPsi_phi/d");
+/*  tree->Branch("gentbJPsi_phi",&gentbJPsi_phi,"gentbJPsi_phi/d");
   tree->Branch("gentbJPsilp_phi",&gentbJPsilp_phi,"gentbJPsilp_phi/d");
   tree->Branch("gentbJPsilm_phi",&gentbJPsilm_phi,"gentbJPsilm_phi/d");
   tree->Branch("gentbbJPsi_phi",&gentbbJPsi_phi,"gentbbJPsi_phi/d");
   tree->Branch("gentbbJPsilp_phi",&gentbbJPsilp_phi,"gentbbJPsilp_phi/d");
   tree->Branch("gentbbJPsilm_phi",&gentbbJPsilm_phi,"gentbbJPsilm_phi/d");
-  
+*/  
     //tree->Branch("genbquark1_theta",&genbquark1_theta,"genbquark1_theta/d");
     //tree->Branch("genbquark2_theta",&genbquark2_theta,"genbquark2_theta/d");
 
-  tree->Branch("genpriJPsi_3Dl",&genpriJPsi_3Dl,"genpriJPsi_3Dl/d");
+/*  tree->Branch("genpriJPsi_3Dl",&genpriJPsi_3Dl,"genpriJPsi_3Dl/d");
   tree->Branch("gensecJPsi_3Dl",&gensecJPsi_3Dl,"gensecJPsi_3Dl/d");
   tree->Branch("gentbJPsi_3Dl",&gentbJPsi_3Dl,"gentbJPsi_3Dl/d");
   tree->Branch("gentbbJPsi_3Dl",&gentbbJPsi_3Dl,"gentbbJPsi_3Dl/d");
@@ -492,6 +504,7 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
   tree->Branch("gensecJPsi_mass",&gensecJPsi_mass,"gensecJPsi_mass/d");
     tree->Branch("gentbJPsi_mass",&gentbJPsi_mass,"gentbJPsi_mass/d"); 
     tree->Branch("gentbbJPsi_mass",&gentbbJPsi_mass,"gentbbJPsi_mass/d"); 
+*/
 /*    tree->Branch("genJPsiB1_theta",&genJPsiB1_theta,"genJPsiB1_theta/d");
     tree->Branch("genJPsiB2_theta",&genJPsiB2_theta,"genJPsiB2_theta/d");
     tree->Branch("genJPsi1_theta",&genJPsi1_theta,"genJPsi1_theta/d");
@@ -500,7 +513,7 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     tree->Branch("genJPsi1_mass",&genJPsi1_mass,"genJPsi1_mass/d"); 
     tree->Branch("genJPsi2_mass",&genJPsi2_mass,"genJPsi2_mass/d"); */
 
-  tree->Branch("genNpJPsi",&genNpJPsi,"genNpJPsi/d");
+/*  tree->Branch("genNpJPsi",&genNpJPsi,"genNpJPsi/d");
   tree->Branch("genNbJPsi",&genNbJPsi,"genNbJPsi/d");
   tree->Branch("genNbQuarksTop",&genNbQuarksTop,"genNbQuarksTop/d");
   tree->Branch("genNbQuarks",&genNbQuarks,"genNbQuarks/d");
@@ -512,9 +525,9 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
   tree->Branch("genNtbbJPsi",&genNtbbJPsi,"genNtbbJPsi/d");
   tree->Branch("genNtbbJPsilp",&genNtbbJPsilp,"genNtbbJPsilp/d");
   tree->Branch("genNtbbJPsilm",&genNtbbJPsilm,"genNtbbJPsilm/d");
-
+*/
     tree->Branch("ttbarGen_dileptonic",&ttbarGen_dileptonic,"ttbarGen_dileptonic/i"); 
-    tree->Branch("visible",&visible,"visible/i"); 
+/////    tree->Branch("visible",&visible,"visible/i"); 
     //tree->Branch("ttbb",&ttbb,"ttbb/i"); 
     //tree->Branch("ttcc",&ttcc,"ttcc/i"); 
     //tree->Branch("ttLF",&ttLF,"ttLF/i"); 
@@ -631,6 +644,9 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     edm::Handle<vector<vallot::JPsiCandidate> > JPsiCand;
     iEvent.getByLabel(jpsiLabel_, JPsiCand);
 
+    edm::Handle<vector<vallot::JPsiCandidate> > ssJPsiCand;
+    iEvent.getByLabel(ssjpsiLabel_, ssJPsiCand);
+
     edm::Handle<vector<vallot::LepJPsiCandidate> > LepJPsiCand1;
     iEvent.getByLabel(lepJPsiLabel1_, LepJPsiCand1);
 
@@ -703,6 +719,7 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     //cout << "step4" << endl;
 
     nJPsiCand =  JPsiCand->size();
+    nssJPsiCand =  ssJPsiCand->size();
     nLepJPsiCand1 =  LepJPsiCand1->size();
     nLepJPsiCand2 =  LepJPsiCand2->size();
 
@@ -714,7 +731,7 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
       //JPsiTheta = JPsiCand->at(0).theta();
       JPsivProb = JPsiCand->at(0).vProb();
       JPsidlPV = JPsiCand->at(0).dlPV();
-      //JPsidlErrPV = JPsiCand->at(0).dlErrPV();
+      JPsidlErrPV = JPsidlPV/(JPsiCand->at(0).dlErrPV());
       JPsippdlPV = JPsiCand->at(0).ppdlPV();
       JPsippdlErrPV = JPsiCand->at(0).ppdlErrPV();
       //JPsippdlBS = JPsiCand->at(0).ppdlBS();
@@ -724,39 +741,17 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
       JPsippdlTrue = JPsiCand->at(0).ppdlTrue();
       LepJPsiMass1 = LepJPsiCand1->at(0).mass();
       LepJPsiMass2 = LepJPsiCand2->at(0).mass();
+      LepJPsiMass = LepJPsiMass1;
+      LepJPsiMass = LepJPsiMass2;
       LepJPsidTheta1 = LepJPsiCand1->at(0).dtheta();
       LepJPsidTheta2 = LepJPsiCand2->at(0).dtheta();
-      /*if(LepJPsidTheta1<LepJPsidTheta2) 
-      {  LepJPsidThetalower = LepJPsidTheta1;
-         LepJPsidThetabigger =LepJPsidTheta2;
-      }else if(LepJPsidTheta1>LepJPsidTheta2){
-         LepJPsidThetalower = LepJPsidTheta2;
-         LepJPsidThetabigger =LepJPsidTheta1;
-      }else{ LepJPsidThetalower = LepJPsidTheta1; }*/
-      LepJPsidThetalower = LepJPsidTheta1<=LepJPsidTheta2? LepJPsidTheta1:LepJPsidTheta2;
-      LepJPsidThetabigger = LepJPsidTheta1>LepJPsidTheta2? LepJPsidTheta1:LepJPsidTheta2;
       LepJPsidPhi1 = fabs(LepJPsiCand1->at(0).deltaPhi());
       LepJPsidPhi2 = fabs(LepJPsiCand2->at(0).deltaPhi());
-      /*if(LepJPsidPhi1<LepJPsidPhi2)
-      {  LepJPsidPhilower = LepJPsidPhi1;
-         LepJPsidPhibigger = LepJPsidPhi2;
-      }else if(LepJPsidPhi1>LepJPsidPhi2){
-         LepJPsidPhilower = LepJPsidPhi2;
-         LepJPsidPhibigger = LepJPsidPhi1;
-      }else{  LepJPsidPhilower = LepJPsidPhi1; } */
-         LepJPsidPhilower = LepJPsidPhi1<=LepJPsidPhi2? LepJPsidPhi1:LepJPsidPhi2;
-         LepJPsidPhibigger = LepJPsidPhi1>LepJPsidPhi2? LepJPsidPhi1:LepJPsidPhi2;
       LepJPsidR1 = LepJPsiCand1->at(0).deltaR();
       LepJPsidR2 = LepJPsiCand2->at(0).deltaR();
-      /*if(LepJPsidR1<LepJPsidR2){
-         LepJPsidRlower = LepJPsidR1;
-         LepJPsidRbigger = LepJPsidR2;
-      }else if(LepJPsidR1>LepJPsidR2){
-         LepJPsidRlower = LepJPsidR2;
-         LepJPsidRbigger = LepJPsidR1;
-      }else { LepJPsidRlower = LepJPsidR1; }*/
-      LepJPsidRlower = LepJPsidR1<=LepJPsidR2? LepJPsidR1:LepJPsidR2;
-      LepJPsidRbigger = LepJPsidR1>LepJPsidR2? LepJPsidR1:LepJPsidR2;
+      LepJPsiMassdRLower = LepJPsidR1<=LepJPsidR2? LepJPsiMass1:LepJPsiMass2;
+      LepJPsiMassdThetaLower = LepJPsidTheta1<=LepJPsidTheta2? LepJPsiMass1:LepJPsiMass2;
+      LepJPsiMassdPhiLower = LepJPsidPhi1<=LepJPsidPhi2? LepJPsiMass1:LepJPsiMass2;
       JPsiPairSign =  JPsiCand->at(0).sign();
       lep3_pt = JPsiCand->at(0).leg1().pt();
       lep4_pt = JPsiCand->at(0).leg2().pt();
@@ -766,8 +761,20 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
       lep4_phi = JPsiCand->at(0).leg2().phi();
       lep3_charge = JPsiCand->at(0).leg1().charge();
       lep4_charge = JPsiCand->at(0).leg2().charge();
-      lep3->push_back( JPsiCand->at(0).leg1() );
-      lep4->push_back( JPsiCand->at(0).leg2() );
+      lep3_pixlayers = JPsiCand->at(0).pixlayers1();
+      lep4_pixlayers = JPsiCand->at(0).pixlayers2();      
+
+      //lep3->push_back( JPsiCand->at(0).leg1() );
+      //lep4->push_back( JPsiCand->at(0).leg2() );
+    }
+
+    if( nssJPsiCand > 0){
+      for(unsigned int i=0;i<nssJPsiCand;i++){
+        ssJPsiMass.push_back(ssJPsiCand->at(i).mass());
+        ssJPsiEta.push_back(ssJPsiCand->at(i).eta());
+        ssJPsiPt.push_back(ssJPsiCand->at(i).pt());
+        ssJPsiPairSign.push_back(ssJPsiCand->at(i).sign());
+      }
     }
 
     bool iso = lep1_relIso03 < relIso1_ && lep2_relIso03 < relIso2_;
@@ -796,6 +803,8 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     double metup;
     double metdw;
     double minDR = 999;
+    double minDPtFrac = 999;
+    double minJPsiPtFrac = 999;
     double minDPhi = 999;
 
     for (JI jit = Jets->begin(); jit != Jets->end(); ++jit) {
@@ -831,8 +840,8 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
       //double bDiscriminatorJP = jit->bDiscriminator("jetProbabilityBJetTags");
       //float secvtxmass = jit->secvtxMass();
       double uncert = jit->uncOnFourVectorScale();
-      float Lxy = jit->Lxy();
-      float LxyErr = jit->LxyErr();
+      //float Lxy = jit->Lxy();
+      //float LxyErr = jit->LxyErr();
 
       mapJetBDiscriminator[idx] = bDiscriminator;
 
@@ -870,8 +879,8 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
       //jets->push_back(jet);
  
       //jets_secvtxmass.push_back( secvtxmass );
-      jets_Lxy.push_back(Lxy);
-      jets_LxyErr.push_back(LxyErr);
+      //jets_Lxy.push_back(Lxy);
+      //jets_LxyErr.push_back(LxyErr);
       jets_pt.push_back(jit->p4().pt());
       jets_eta.push_back(jit->p4().eta());
       jets_phi.push_back(jit->p4().phi());
@@ -887,7 +896,14 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
 
       if( JPsiMass > 0 && jit->pt() > 30){
         double dR = deltaR(jit->eta(), jit->phi(), JPsiEta, JPsiPhi);
-        if(dR < minDR ) minDR = dR;
+        double DPtFrac = (jit->pt()-JPsiPt)/jit->pt();
+        double JPsiPtFrac = JPsiPt/jit->pt();
+        if(dR < minDR )
+        {
+            minDR = dR;
+            minDPtFrac = DPtFrac;
+            minJPsiPtFrac = JPsiPtFrac;
+        }
       }
 
       if( JPsiMass > 0 && jit->pt() > 30){
@@ -921,7 +937,9 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
 
     //JPsi Jet minDR, minDPhi
     JPsiJetMinDR = minDR;   
-    JPsiJetMinDPhi = minDPhi;   
+    JPsiJetMinDPhi = minDPhi;  
+    JPsiJetDPtFrac = minDPtFrac; 
+    JPsiJetJPsiPtFrac = minJPsiPtFrac; 
 
     //JES uncertainty
     nJet30 = njet;
@@ -1469,12 +1487,13 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
 
     Z->clear();
     JPsi->clear();
+    ssJPsi->clear();
     LepJPsi1->clear();
     LepJPsi2->clear();
     lep1->clear();
     lep2->clear();
-    lep3->clear();
-    lep4->clear();
+    //lep3->clear();
+    //lep4->clear();
     pfMet->clear();
     //ttbar->clear();
     //ttbarKin->clear();
@@ -1522,6 +1541,10 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     genZMass = -999; 
     ZtauDecay = 0; 
     PairSign = -999;
+    ssJPsiMass.clear();
+    ssJPsiEta.clear();
+    ssJPsiPt.clear();
+    ssJPsiPairSign.clear(); 
     JPsiMass = -999;
     JPsiEta = -999;
     JPsiPhi = -999;
@@ -1529,7 +1552,7 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     JPsiPt = -999;
     JPsivProb = -999;
     JPsidlPV = -999;
-    //JPsidlErrPV = -999;
+    JPsidlErrPV = -999;
     JPsippdlPV = -999;
     JPsippdlErrPV = -999;
     //JPsippdlBS = -999;
@@ -1539,21 +1562,21 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     JPsippdlTrue = -999;
     LepJPsiMass1 = -999;
     LepJPsiMass2 = -999;
+    LepJPsiMass = -999;
+    LepJPsiMassdRLower = -999;
+    LepJPsiMassdThetaLower = -999;
+    LepJPsiMassdPhiLower = -999;
     LepJPsidTheta1 = -999;
     LepJPsidTheta2 = -999;
-    LepJPsidThetalower = -999;
-    LepJPsidThetabigger = -999;
     LepJPsidPhi1 = -999;
     LepJPsidPhi2 = -999;
-    LepJPsidPhilower = -999;
-    LepJPsidPhibigger = -999;
     LepJPsidR1 = -999;
     LepJPsidR2 = -999;
-    LepJPsidRlower = -999;
-    LepJPsidRbigger = -999;
-    JPsiPairSign = -999;
+    JPsiPairSign = 999;
     JPsiJetMinDR = -999;
     JPsiJetMinDPhi = -999;
+    JPsiJetDPtFrac = -999;
+    JPsiJetJPsiPtFrac = -999;
     isIso = -1;
     //inJet = -1;
     lep1_relIso04 = -999;
@@ -1588,6 +1611,8 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     lep2_charge = 0.0;
     lep3_charge = 0.0;
     lep4_charge = 0.0;
+    lep3_pixlayers = -9;
+    lep4_pixlayers = -9;
     lepweight = 1.0;
  
     //kin_ttbar_mass = -999;
@@ -1597,8 +1622,8 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     //vsumttbarM = -999;
 
     //jets_secvtxmass.clear();
-    jets_Lxy.clear();
-    jets_LxyErr.clear();
+    //jets_Lxy.clear();
+    //jets_LxyErr.clear();
     jets_pt.clear();
     jets_eta.clear();
     jets_phi.clear();
@@ -1865,6 +1890,7 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
   edm::InputTag muonLabel4_;
   edm::InputTag dileptonLabel_;
   edm::InputTag jpsiLabel_;
+  edm::InputTag ssjpsiLabel_;
   edm::InputTag lepJPsiLabel1_;
   edm::InputTag lepJPsiLabel2_;
   edm::InputTag metLabel_;
@@ -1904,12 +1930,13 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
 
   std::vector<vallot::ZCandidate>* Z;
   std::vector<vallot::JPsiCandidate>* JPsi;
+  std::vector<vallot::JPsiCandidate>* ssJPsi;
   std::vector<vallot::LepJPsiCandidate>* LepJPsi1;
   std::vector<vallot::LepJPsiCandidate>* LepJPsi2;
   std::vector<vallot::Lepton>* lep1;
   std::vector<vallot::Lepton>* lep2;
-  std::vector<vallot::Lepton>* lep3;
-  std::vector<vallot::Lepton>* lep4;
+  //std::vector<vallot::Lepton>* lep3;
+  //std::vector<vallot::Lepton>* lep4;
   std::vector<vallot::METCandidate>* pfMet;
   //std::vector<vallot::TTbarMass>* ttbar;
   //std::vector<vallot::TTbarDILEvent>* ttbarKin;
@@ -1928,6 +1955,10 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
   double METDw;
   double ZMass;
   double genZMass;
+  std::vector<double> ssJPsiMass;
+  std::vector<double> ssJPsiEta;
+  std::vector<double> ssJPsiPt;
+  std::vector<int> ssJPsiPairSign;
   double JPsiMass;
   double JPsiEta;
   double JPsiPhi;
@@ -1935,7 +1966,7 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
   double JPsiPt;
   double JPsivProb;
   double JPsidlPV;
-  //double JPsidlErrPV;
+  double JPsidlErrPV;
   double JPsippdlPV;
   double JPsippdlErrPV;
   //double JPsippdlBS;
@@ -1945,23 +1976,23 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
   double JPsippdlTrue;
   double LepJPsidTheta1;
   double LepJPsidTheta2;
-  double LepJPsidThetalower;
-  double LepJPsidThetabigger;
   double LepJPsidPhi1;
   double LepJPsidPhi2;
-  double LepJPsidPhilower;
-  double LepJPsidPhibigger;
   double LepJPsidR1;
   double LepJPsidR2;
-  double LepJPsidRlower;
-  double LepJPsidRbigger;
   double LepJPsiMass1;
   double LepJPsiMass2;
+  double LepJPsiMass;
+  double LepJPsiMassdRLower;
+  double LepJPsiMassdThetaLower;
+  double LepJPsiMassdPhiLower;
   int ZtauDecay;
   double PairSign;
   double JPsiPairSign;
   double JPsiJetMinDR;
   double JPsiJetMinDPhi;
+  double JPsiJetDPtFrac;
+  double JPsiJetJPsiPtFrac;
   double isIso;
   //double inJet;
   double lep1_relIso04;
@@ -1996,6 +2027,8 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
   double lep2_charge;
   double lep3_charge;
   double lep4_charge;
+  int lep3_pixlayers;
+  int lep4_pixlayers;
   double lepweight;
 
   //double kin_ttbar_mass;
@@ -2005,8 +2038,8 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
   //double vsumttbarM;
 
   //std::vector<double> jets_secvtxmass;
-  std::vector<double> jets_Lxy;
-  std::vector<double> jets_LxyErr;
+  //std::vector<double> jets_Lxy;
+  //std::vector<double> jets_LxyErr;
   std::vector<double> jets_pt;
   std::vector<double> jets_eta;
   std::vector<double> jets_phi;
@@ -2025,6 +2058,7 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
   //unsigned int nGencJet20;
 
   unsigned int nJPsiCand;
+  unsigned int nssJPsiCand;
   unsigned int nLepJPsiCand1;
   unsigned int nLepJPsiCand2;
 

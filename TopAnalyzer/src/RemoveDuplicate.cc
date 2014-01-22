@@ -13,7 +13,7 @@
 //
 // Original Author:  Tae Jeong Kim
 //         Created:  Mon Dec 14 01:29:35 CET 2009
-// $Id: RemoveDuplicate.cc,v 1.2 2010/10/14 15:50:03 jhgoh Exp $
+// $Id: RemoveDuplicate.cc,v 1.3 2010/11/19 16:21:14 jhgoh Exp $
 //
 //
 

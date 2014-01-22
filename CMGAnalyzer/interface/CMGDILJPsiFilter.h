@@ -128,9 +128,11 @@ class CMGDILJPsiFilter : public edm::EDFilter {
     vertexLabel_ = iConfig.getUntrackedParameter<edm::InputTag>("vertexLabel");//jkim, offlinePrimaryVertices
     //thebeamspot_ = iConfig.getParameter<edm::InputTag>("beamSpotTag");
     rhoIsoLabel_ = iConfig.getUntrackedParameter<edm::InputTag>("rhoIsoLabel");
+    genParticlesLabel_= iConfig.getParameter<edm::InputTag>("genParticlesLabel");
 
     produces<std::vector<vallot::ZCandidate> >("DiLepton");
     produces<std::vector<vallot::JPsiCandidate> >("JPsi");
+    produces<std::vector<vallot::JPsiCandidate> >("ssJPsi");
     produces<std::vector<vallot::LepJPsiCandidate> >("LepJPsi1");
     produces<std::vector<vallot::LepJPsiCandidate> >("LepJPsi2");
     produces<std::vector<T1> >("Lepton1");
@@ -159,6 +161,7 @@ class CMGDILJPsiFilter : public edm::EDFilter {
     std::auto_ptr<std::vector<vallot::ZCandidate> > seldilp(new std::vector<vallot::ZCandidate>());
     std::auto_ptr<std::vector<vallot::JPsiCandidate> > JPsi(new std::vector<vallot::JPsiCandidate>());
     std::auto_ptr<std::vector<vallot::JPsiCandidate> > selJPsi(new std::vector<vallot::JPsiCandidate>());
+    std::auto_ptr<std::vector<vallot::JPsiCandidate> > selssJPsi(new std::vector<vallot::JPsiCandidate>());
     std::auto_ptr<std::vector<vallot::LepJPsiCandidate> > lpJPsi1(new std::vector<vallot::LepJPsiCandidate>());
     std::auto_ptr<std::vector<vallot::LepJPsiCandidate> > lpJPsi2(new std::vector<vallot::LepJPsiCandidate>());
     std::auto_ptr<std::vector<vallot::LepJPsiCandidate> > sellpJPsi1(new std::vector<vallot::LepJPsiCandidate>());
@@ -179,12 +182,14 @@ class CMGDILJPsiFilter : public edm::EDFilter {
     edm::Handle<std::vector<T4> > muons4_;
     edm::Handle<reco::VertexCollection> recVtxs_;
     edm::Handle<reco::BeamSpot> theBeamSpot;
+    edm::Handle<reco::GenParticleCollection> genParticles_;
 
     iEvent.getByLabel(muonLabel1_,muons1_);
     iEvent.getByLabel(muonLabel2_,muons2_);
     iEvent.getByLabel(muonLabel3_,muons3_);
     iEvent.getByLabel(muonLabel4_,muons4_);
     iEvent.getByLabel(vertexLabel_,recVtxs_);
+    iEvent.getByLabel(genParticlesLabel_,genParticles_);
     //iEvent.getByLabel(thebeamspot_,theBeamSpot);
 
     //Vertex theBeamSpotV;
@@ -309,7 +314,7 @@ class CMGDILJPsiFilter : public edm::EDFilter {
             double ctauPV = -999;
             double ctauErrPV = -999;
             double dlPV = -999;
-            //double dlErrPV = -999;
+            double dlErrPV = -999;
             //double ctauBS = -999;
             //double ctauErrBS = -999;
             float genRefJpmomId = 0;
@@ -359,12 +364,13 @@ class CMGDILJPsiFilter : public edm::EDFilter {
                   double cosAlpha = vdiff.Dot(pperp)/(vdiff.Perp()*pperp.Perp());
                   Measurement1D distXY = vdistXY.distance(Vertex(myVertex), pv);
                   ctauPV = distXY.value()*cosAlpha * ((lepton3+lepton4).M())/pperp.Perp();
-                  dlPV = vdiff3.Mag(); 
+                  dlPV = vdiff3.Mag();
+                  //dlErrPV = sqrt(dlPV);
                   GlobalError v1e = (Vertex(myVertex)).error();
                   GlobalError v2e = pv.error();
                   AlgebraicSymMatrix33 vXYe = v1e.matrix()+ v2e.matrix();
                   ctauErrPV = sqrt(ROOT::Math::Similarity(vpperp,vXYe))*((lepton3+lepton4).M())/(pperp.Perp2());
-                  //dlErrPV = sqrt(ROOT::Math::Similarity(vJpsip,vXYe));
+                  dlErrPV =  sqrt(ROOT::Math::Similarity(vJpsip,vXYe));
 
                   //lifetime using BS
                   /*pvtx.SetXYZ(theBeamSpotV.position().x(),theBeamSpotV.position().y(),0);
@@ -381,97 +387,106 @@ class CMGDILJPsiFilter : public edm::EDFilter {
 
                }
             }
-            //cout<<"dlPV : "<<dlPV<<" /dlErrPV : "<<dlErrPV<<"ctauPV : "<<ctauPV<<" /ctauErrPV : "<<ctauErrPV<<" /ctauBS : "<<ctauBS<<" /ctauErrBS : "<<ctauErrBS<<endl;
+            //cout<<"dlPV : "<<dlPV<<" /dlErrPV : "<<dlErrPV<<endl;
+//"ctauPV : "<<ctauPV<<" /ctauErrPV : "<<ctauErrPV<<" /ctauBS : "<<ctauBS<<" /ctauErrBS : "<<ctauErrBS<<endl;
 
             // ---- MC Truth, if enabled ----
-           if (!isRealData){ //&& genParticles_.isValid()) {
-              //float genReflep1moId = 0;
-              //float genReflep2moId = 0;
-              reco::GenParticleRef genlep1 = it1.sourcePtr()->get()->genParticleRef();
-              reco::GenParticleRef genlep2 = it2.sourcePtr()->get()->genParticleRef();
-              reco::GenParticleRef genlep3 = it3.sourcePtr()->get()->genParticleRef();
-              reco::GenParticleRef genlep4 = it4.sourcePtr()->get()->genParticleRef();
-              if (genlep1.isNonnull() && genlep2.isNonnull() 
-                  && genlep3.isNonnull() && genlep4.isNonnull()){
+//           if (!isRealData && genParticles_.isValid()) {
+            //float genReflep1moId = 0;
+            //float genReflep2moId = 0;
+//            reco::GenParticleRef genlep1 = it1.sourcePtr()->get()->genParticleRef();
+//            reco::GenParticleRef genlep2 = it2.sourcePtr()->get()->genParticleRef();
+//            reco::GenParticleRef genlep3 = it3.sourcePtr()->get()->genParticleRef();
+//            reco::GenParticleRef genlep4 = it4.sourcePtr()->get()->genParticleRef();
+//            if (genlep1.isNonnull() && genlep2.isNonnull() 
+//                && genlep3.isNonnull() && genlep4.isNonnull()){
 
                // if (genlep1->numberOfMothers()>0 && genlep2->numberOfMothers()>0){
-                 //  reco::GenParticleRef mom1 = genlep1->motherRef();
-                 //  reco::GenParticleRef mom2 = genlep2->motherRef();
-                 //  if (mom1.isNonnull() && mom2.isNonnull() && (mom1 != mom2)) {
-                      /*if (isFromt(genlep1) && isFromtbar(genlep2)){
-                         genReflep1moId = 6;
-                         genReflep2moId = -6;
-                      }
-                      if (isFromtbar(genlep1) && isFromt(genlep2)){
-                         genReflep1moId = -6;
-                         genReflep2moId = 6;
-                      }
-                      cout<<"grlepmoid : "<<genReflep1moId<<" / "<<genReflep2moId<<endl;*/
-                  // }
-                //} 
-                  /*else {
-                  Handle<GenParticleCollection>theGenParticles;
-                  iEvent.getByLabel("genParticlesPruned", theGenParticles);
-                  if (theGenParticles.isValid()){
-                     for(size_t iGenParticle=0; iGenParticle<theGenParticles->size();++iGenParticle){
-                       const Candidate & genCand = (*theGenParticles)[iGenParticle];
-                       if (fabs(genCand.pdgId()==11) || fabs(genCand.pdgId()==13)){
-                          reco::GenParticleRef mom1(theGenParticles,iGenParticle);
-                          if (isFromt(mom1)){
-                             genReflep1moId = 6;
-                             genReflep2moId = -6;
-                           }
-                           if (isFromtbar(mom1)){
-                            genReflep1moId = -6;
-                            genReflep2moId = 6;
-                           }
-                           cout<<"(else)grlepmoid : "<<genReflep1moId<<" / "<<genReflep2moId<<endl;
-                       }
+               //  reco::GenParticleRef mom1 = genlep1->motherRef();
+               //  reco::GenParticleRef mom2 = genlep2->motherRef();
+               //  if (mom1.isNonnull() && mom2.isNonnull() && (mom1 != mom2)) {
+                    /*if (isFromt(genlep1) && isFromtbar(genlep2)){
+                       genReflep1moId = 6;
+                       genReflep2moId = -6;
                     }
+                    if (isFromtbar(genlep1) && isFromt(genlep2)){
+                       genReflep1moId = -6;
+                       genReflep2moId = 6;
+                    }
+                    cout<<"grlepmoid : "<<genReflep1moId<<" / "<<genReflep2moId<<endl;*/
+                // }
+              //} 
+                /*else {
+                Handle<GenParticleCollection>theGenParticles;
+                iEvent.getByLabel("genParticlesPruned", theGenParticles);
+                if (theGenParticles.isValid()){
+                   for(size_t iGenParticle=0; iGenParticle<theGenParticles->size();++iGenParticle){
+                     const Candidate & genCand = (*theGenParticles)[iGenParticle];
+                     if (fabs(genCand.pdgId()==11) || fabs(genCand.pdgId()==13)){
+                        reco::GenParticleRef mom1(theGenParticles,iGenParticle);
+                        if (isFromt(mom1)){
+                           genReflep1moId = 6;
+                           genReflep2moId = -6;
+                         }
+                         if (isFromtbar(mom1)){
+                          genReflep1moId = -6;
+                          genReflep2moId = 6;
+                         }
+                         cout<<"(else)grlepmoid : "<<genReflep1moId<<" / "<<genReflep2moId<<endl;
+                     }
                   }
-                }*/
+                }
+              }*/
 
-                if (genlep3->numberOfMothers()>0 && genlep4->numberOfMothers()>0){
-                   reco::GenParticleRef mom3 = genlep3->motherRef();
-                   reco::GenParticleRef mom4 = genlep4->motherRef();
-                   if (mom3.isNonnull() && mom4.isNonnull() && (mom3 == mom4) && mom3->pdgId()==443) {
-                      
-                      std::pair<double, double> dlTrue = getJPsidlTrue(mom3);
-                      genRefJpmomId = getMomID(mom3);
-                      DlTrue = dlTrue.first;
-                      ppdlTrue = dlTrue.second;
-                      //cout<<"dlPV : "<<dlPV<<" /dlErrPV : "<<dlErrPV<<endl;
-                      cout<<"grJPmoid : "<<genRefJpmomId<<" 3DlTrue : "<<DlTrue<<" /ppdlTrue : "<<ppdlTrue<<endl;
-                   }
+//                if (genlep3->numberOfMothers()>0 && genlep4->numberOfMothers()>0){
+//                 reco::GenParticleRef mom3 = genlep3->motherRef();
+//                 reco::GenParticleRef mom4 = genlep4->motherRef();
+//                 if (mom3.isNonnull() && mom4.isNonnull() && (mom3 == mom4) && mom3->pdgId()==443) {
+//                    
+//                    std::pair<double, double> dlTrue = getJPsidlTrue(mom3);
+//                    genRefJpmomId = getMomID(mom3);
+//                    DlTrue = dlTrue.first;
+//                    ppdlTrue = dlTrue.second;
+                    //cout<<"dlPV : "<<dlPV<<" /dlErrPV : "<<dlErrPV<<endl;
+                    //cout<<"grJPmoid : "<<genRefJpmomId<<" 3DlTrue : "<<DlTrue<<" /ppdlTrue : "<<ppdlTrue<<endl;
+//                 }
                    //cout<<"grJPmoid : "<<genRefJpmomId<<" 3DlTrue : "<<DlTrue<<" /ppdlTrue : "<<ppdlTrue<<endl;
-                } /*else {
-                  Handle<GenParticleCollection>theGenParticles;
-                  iEvent.getByLabel("genParticles", theGenParticles);
-                  if (theGenParticles.isValid()){
-                     for(size_t iGenParticle=0; iGenParticle<theGenParticles->size();++iGenParticle){
-                       const Candidate & genCand = (*theGenParticles)[iGenParticle];
-                       if (genCand.pdgId()==443 || genCand.pdgId()==100443 ||
-                          genCand.pdgId()==553 || genCand.pdgId()==100553 || genCand.pdgId()==200553){
-                          reco::GenParticleRef mom3(theGenParticles,iGenParticle);
-                          std::pair<double, double> dlTrue = getJPsidlTrue(mom3);
-                          genRefJpmomId = genCand.pdgId();
-                          DlTrue = dlTrue.first;
-                          ppdlTrue = dlTrue.second;
-                          cout<<"(else)grJPmoid : "<<genRefJpmomId<<" 3DlTrue : "<<DlTrue<<" /ppdlTrue : "<<ppdlTrue<<endl;
-                       }
-                    }
+//                } /*else {
+/*                  Handle<GenParticleCollection>theGenParticles;
+                iEvent.getByLabel("genParticles", theGenParticles);
+                if (theGenParticles.isValid()){
+                   for(size_t iGenParticle=0; iGenParticle<theGenParticles->size();++iGenParticle){
+                     const Candidate & genCand = (*theGenParticles)[iGenParticle];
+                     if (genCand.pdgId()==443 || genCand.pdgId()==100443 ||
+                        genCand.pdgId()==553 || genCand.pdgId()==100553 || genCand.pdgId()==200553){
+                        reco::GenParticleRef mom3(theGenParticles,iGenParticle);
+                        std::pair<double, double> dlTrue = getJPsidlTrue(mom3);
+                        genRefJpmomId = genCand.pdgId();
+                        DlTrue = dlTrue.first;
+                        ppdlTrue = dlTrue.second;
+                        cout<<"(else)grJPmoid : "<<genRefJpmomId<<" 3DlTrue : "<<DlTrue<<" /ppdlTrue : "<<ppdlTrue<<endl;
+                     }
                   }
-                }*/
+                  }
+*////                }*/
 
-              }
-            }
+//              }
+//            }
           
             bool iso = lepton1_relIso03 < relIso1_ && lepton2_relIso03 < relIso2_;
             bool opp = it1.sourcePtr()->get()->charge() * it2.sourcePtr()->get()->charge() < 0;
             bool oppJPsi = it3.sourcePtr()->get()->charge() * it4.sourcePtr()->get()->charge() < 0;
+            bool ssJPsi = it3.sourcePtr()->get()->charge() * it4.sourcePtr()->get()->charge() > 0;
+
+            int pixlayers3 = -9;
+            int pixlayers4 = -9;
+
+            pixlayers3 = getPixlayers(it3); 
+            pixlayers4 = getPixlayers(it4); 
 
             vallot::ZCandidate dimuon(lepton1, lepton2);
-            vallot::JPsiCandidate jpsi(lepton3, lepton4, vProb, dlPV, ctauPV, ctauErrPV, genRefJpmomId, DlTrue, ppdlTrue);
+            vallot::JPsiCandidate jpsi(lepton3, lepton4, vProb, dlPV, dlErrPV, ctauPV, ctauErrPV, genRefJpmomId, DlTrue, ppdlTrue,pixlayers3,pixlayers4);
+            vallot::JPsiCandidate ssjpsi(lepton3, lepton4, vProb, dlPV, dlErrPV, ctauPV, ctauErrPV, genRefJpmomId, DlTrue, ppdlTrue,pixlayers3,pixlayers4);
             vallot::LepJPsiCandidate lJPsi1(lepton1, lepton3, lepton4);
             vallot::LepJPsiCandidate lJPsi2(lepton2, lepton3, lepton4);
 
@@ -495,7 +510,11 @@ class CMGDILJPsiFilter : public edm::EDFilter {
               //lep4->push_back( (*muons4_)[m] );
              
             }
-        
+
+            if(ssJPsi){
+              selssJPsi->push_back( ssjpsi );
+            }
+
           }
         }
       }
@@ -549,6 +568,7 @@ class CMGDILJPsiFilter : public edm::EDFilter {
 
     iEvent.put(dilp,"DiLepton");
     iEvent.put(JPsi,"JPsi");
+    iEvent.put(selssJPsi,"ssJPsi");
     iEvent.put(lpJPsi1,"LepJPsi1");
     iEvent.put(lpJPsi2,"LepJPsi2");
     iEvent.put(lep1,"Lepton1");
@@ -614,17 +634,25 @@ class CMGDILJPsiFilter : public edm::EDFilter {
   }
 
   bool JPsilepSel(const cmg::Electron& cmgEl, const reco::Vertex pv){
-        bool passPre = cmgEl.pt() > 0.0 && fabs(cmgEl.eta()) < 2.5
-                   && cmgEl.sourcePtr()->get()->isPF()
-                   && fabs( cmgEl.sourcePtr()->get()->superCluster()->eta() ) > 1.4442
-                   && fabs( cmgEl.sourcePtr()->get()->superCluster()->eta() ) < 1.5660
-                   && fabs( cmgEl.sourcePtr()->get()->gsfTrack()->dxy(pv.position()) ) < 0.02;
+        bool passPre = cmgEl.pt() > 0.0 && fabs(cmgEl.eta()) < 2.4
+                   && cmgEl.sourcePtr()->get()->isPF();
+                   ///&& fabs( cmgEl.sourcePtr()->get()->superCluster()->eta() ) > 1.4442
+                   ///&& fabs( cmgEl.sourcePtr()->get()->superCluster()->eta() ) < 1.5660
+                   ///&& fabs( cmgEl.sourcePtr()->get()->gsfTrack()->dxy(pv.position()) ) < 0.02;
                    //&& cmgEl.sourcePtr()->get()->passConversionVeto()
                    //&& cmgEl.mvaTrigV0()>0.5
                    //&& cmgEl.sourcePtr()->get()->gsfTrack()->trackerExpectedHitsInner().numberOfHits()<=0;
 
         return passPre;
 
+  }
+ 
+  int getPixlayers(const cmg::Muon& cmgMu){
+        return cmgMu.pixelLayersWithMeasurement();
+  }
+
+  int getPixlayers(const cmg::Electron& cmgEl){
+        return -9;
   }
 
   int getMomID(reco::GenParticleRef genJpsi) {
@@ -636,7 +664,7 @@ class CMGDILJPsiFilter : public edm::EDFilter {
       reco::GenParticleRef Jpsimom = genJpsi->motherRef();
       while( Jpsimom.isNonnull() ){
         string id = Form("%i", Jpsimom->pdgId());
-        cout<<"Jpsimomid : "<<id<<endl;
+        //cout<<"Jpsimomid : "<<id<<endl;
         if( abs(Jpsimom->pdgId()) == 511 || abs(Jpsimom->pdgId()) == 521 
             || abs(Jpsimom->pdgId()) == 531 || abs(Jpsimom->pdgId()) == 541 
             || abs(Jpsimom->pdgId()) == 5122 || abs(Jpsimom->pdgId()) == 5132 
@@ -656,7 +684,7 @@ class CMGDILJPsiFilter : public edm::EDFilter {
     if(bHadron && top) moid = 6;
     if(bHadron && !top) moid = 5;
     //if(!bHadron && !top) moid = 2212;
-    cout<<"return moid: "<<moid<<endl; 
+    //cout<<"return moid: "<<moid<<endl; 
  
     return moid;
   }
@@ -713,6 +741,7 @@ class CMGDILJPsiFilter : public edm::EDFilter {
   edm::InputTag vertexLabel_;
   //edm::InputTag thebeamspot_;
   edm::InputTag rhoIsoLabel_;
+  edm::InputTag genParticlesLabel_;
 
   double min_;
   double max_;

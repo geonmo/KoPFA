@@ -13,7 +13,7 @@
 //
 // Original Author:  Tae Jeong Kim
 //         Created:  Mon Dec 14 01:29:35 CET 2009
-// $Id: GenWtransversemassFilter.cc,v 1.4 2010/11/01 20:59:19 tjkim Exp $
+// $Id: GenWtransversemassFilter.cc,v 1.1 2012/02/06 12:39:18 bhlee Exp $
 //
 //
 

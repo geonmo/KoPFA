@@ -13,7 +13,7 @@
 //
 // Original Author:  Tae Jeong Kim
 //         Created:  Mon Dec 14 01:29:35 CET 2009
-// $Id: VertexFilter.cc,v 1.1 2010/07/22 20:10:20 tjkim Exp $
+// $Id: VertexFilter.cc,v 1.2 2011/02/27 22:48:36 tjkim Exp $
 //
 //
 
