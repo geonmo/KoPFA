@@ -20,7 +20,7 @@ cp /afs/cern.ch/user/g/gpetrucc/public/CMG_PAT_V5_18_from-CMSSW_5_3_14.sparse-ch
 </code></pre>
 ###OR at other place,
 <pre><code>
-scp (CERN ID)@lxplus5.cern.ch:/afs/cern.ch/user/g/gpetrucc/public/CMG_PAT_V5_18_from-CMSSW_5_3_14.sparse-checkout .git/info/sparse-checkout .git/info/spase-checkout
+scp (CERN ID)@lxplus5.cern.ch:/afs/cern.ch/user/g/gpetrucc/public/CMG_PAT_V5_18_from-CMSSW_5_3_14.sparse-checkout .git/info/sparse-checkout
 
 </code></pre>
 
