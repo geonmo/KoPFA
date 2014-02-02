@@ -9,13 +9,14 @@ KoPFA
 cmsrel CMSSW_5_3_12_patch1
 
 git init
-git remote add origin git@github.com:cbernet/cmg-cmssw.git
+git remote add cmg-central https://github.com/CERN-PH-CMG/cmg-cmssw.git
+git fetch cmg-central
 git config core.sparsecheckout true
 </code></pre>
 
 ###IF at CERN,
 <pre><code>
-cp /afs/cern.ch/user/c/cbern/public/Git/SparseCheckouts/CMG_PAT_from-CMSSW_5_3_12_patch1 .git/info/sparse-checkout
+cp /afs/cern.ch/user/g/gpetrucc/public/CMG_PAT_V5_18_from-CMSSW_5_3_14.sparse-checkout .git/info/sparse-checkout
 </code></pre>
 ###OR at other place,
 <pre><code>
