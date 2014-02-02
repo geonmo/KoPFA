@@ -20,25 +20,8 @@ cp /afs/cern.ch/user/g/gpetrucc/public/CMG_PAT_V5_18_from-CMSSW_5_3_14.sparse-ch
 </code></pre>
 ###OR at other place,
 <pre><code>
-cat > .git/info/sparse-checkout
+scp <CERN ID>@lxplus5.cern.ch:/afs/cern.ch/user/g/gpetrucc/public/CMG_PAT_V5_18_from-CMSSW_5_3_14.sparse-checkout .git/info/sparse-checkout .git/info/spase-checkout
 
-
-AnalysisDataFormats/CMGTools/
-CMGTools/Common/
-CMGTools/External/
-CMGTools/H2TauTau/
-CMGTools/Production/
-CMGTools/RootTools/
-CMGTools/Utilities/
-CMGTools/GitTests/
-CommonTools/ParticleFlow/
-EgammaAnalysis/ElectronTools/
-FWCore/Version/
-Muon/MuonAnalysisTools/
-RecoParticleFlow/PFProducer/
-RecoParticleFlow/PostProcessing/
-TauAnalysis/CandidateTools/
-TauAnalysis/SVFitStandAlone/
 </code></pre>
 
 ## 2. Fetch, checkout and clone KoPFA
