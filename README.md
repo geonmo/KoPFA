@@ -26,8 +26,8 @@ scp (CERN ID)@lxplus5.cern.ch:/afs/cern.ch/user/g/gpetrucc/public/CMG_PAT_V5_18_
 
 ## 2. Fetch, checkout and clone KoPFA
 <pre><code>
-git fetch origin
-git checkout origin/CMG_PAT_V5_18_from-CMSSW_5_3_14
+git fetch cmg-central
+git checkout cmg-central/CMG_PAT_V5_18_from-CMSSW_5_3_14
 git checkout -b master
-git clone git@github.com:geonmo/KoPFA.git
+git submodule git@github.com:geonmo/KoPFA.git
 </code></pre>
