@@ -29,5 +29,5 @@ scp (CERN ID)@lxplus5.cern.ch:/afs/cern.ch/user/g/gpetrucc/public/CMG_PAT_V5_18_
 git fetch cmg-central
 git checkout cmg-central/CMG_PAT_V5_18_from-CMSSW_5_3_14
 git checkout -b master
-git submodule git@github.com:geonmo/KoPFA.git
+git submodule add git@github.com:geonmo/KoPFA.git
 </code></pre>
