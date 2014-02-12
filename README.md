@@ -6,7 +6,7 @@ KoPFA
 # Install
 ##1. Initializing
 <pre><code>
-cmsrel CMSSW_5_3_12_patch1
+cmsrel CMSSW_5_3_14_patch2
 
 git init
 git remote add cmg-central https://github.com/CERN-PH-CMG/cmg-cmssw.git
