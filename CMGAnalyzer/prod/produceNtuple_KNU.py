@@ -6,7 +6,7 @@ import re
 import sys
 import time
 import os,commands
-
+import socket
 from cmg2kcms_cfg import *
 
 input = sys.argv[1]
@@ -14,22 +14,28 @@ input = sys.argv[1]
 #mclist = ["ZJets","ZJets10To50","WJetsToLNu", "WW", "WZ", "ZZ","TTbarTuneZ2"]
 #mclist = ["TTbarFullLepMGDecays"] #TTbarTuneZ2"]
 #mclist = ["WJetsToLNu","WZ"]
-mclist = ["ZJets","ZJets10To50"]
-mclist += ["WJetsToLNu", "WW", "WZ", "ZZ"]
-mclist += ["SingleToptW","SingleTopBartW"]#,"TTH"]
-mclist += ["TTbarFullLepMGDecays","TTbarSemiLeptMGDecays","TTbarHadronicMGDecays"]
+#mclist = ["ZJets","ZJets10To50"]
+#mclist += ["WJetsToLNu", "WW", "WZ", "ZZ"]
+#mclist += ["SingleToptW","SingleTopBartW"]#,"TTH"]
+#mclist += ["TTbarFullLepMGDecays","TTbarSemiLeptMGDecays","TTbarHadronicMGDecays"]
 #mclist = ["TTbarFullLeptP11","TTbarSemiLeptP11","TTbarHadronicP11"]
 #mclist = ["SingleTopBartW","TTbarHadronicMGDecays"]
 #mclist += ["TTbar161_5","TTbar184_5"]
+mclist =  ["MadSpin166_5_UOS"]
+mclist += ["MadSpin169_5_UOS"]
+mclist += ["MadSpin171_5_UOS"]
+mclist += ["MadSpin173_5_UOS"]
+mclist += ["MadSpin175_5_UOS"]
+mclist += ["MadSpin178_5_UOS"]
+
 
 #rdlist = ["Run2012Av1_MuMu","Run2012Av2_MuMu","Run2012B_MuMu","Run2012Cv1_MuMu","Run2012Cv2_MuMu","Run2012Cv3_MuMu","Run2012Dv1_MuMu"] #,"Run2012Dv2_MuMu"]
 #rdlist += ["Run2012Av1_MuEl","Run2012Av2_MuEl","Run2012B_MuEl","Run2012Cv1_MuEl","Run2012Cv2_MuEl","Run2012Cv3_MuEl","Run2012Dv1_MuEl"] #,"Run2012Dv2_MuEl"]
 #rdlist += ["Run2012Av1_ElEl","Run2012Av2_ElEl","Run2012B_ElEl","Run2012Cv1_ElEl","Run2012Cv2_ElEl","Run2012Cv3_ElEl","Run2012Dv1_ElEl"] #,"Run2012Dv2_ElEl"]
 #rdlist = ["Run2012Cv1_MuMu","Run2012Cv1_MuEl"]
-rdlist = ["Run2012A-22Jan2013-v1_MuMu","Run2012B-22Jan2013-v1_MuMu","Run2012C-22Jan2013-v1_MuMu","Run2012D-22Jan2013-v1_MuMu"]
-rdlist += ["Run2012A-22Jan2013-v1_MuEl","Run2012B-22Jan2013-v1_MuEl","Run2012C-22Jan2013-v1_MuEl","Run2012D-22Jan2013-v1_MuEl"]
-rdlist += ["Run2012A-22Jan2013-v1_ElEl","Run2012B-22Jan2013-v1_ElEl","Run2012C-22Jan2013-v1_ElEl","Run2012D-22Jan2013-v1_ElEl"]
-#rdlist = ["Run2012C-22Jan2013-v1_MuMu","Run2012C-22Jan2013-v1_ElEl","Run2012D-22Jan2013-v1_ElEl"]
+#rdlist = ["Run2012A-22Jan2013-v1_MuMu","Run2012B-22Jan2013-v1_MuMu","Run2012C-22Jan2013-v1_MuMu","Run2012D-22Jan2013-v1_MuMu"]
+#rdlist += ["Run2012A-22Jan2013-v1_MuEl","Run2012B-22Jan2013-v1_MuEl","Run2012C-22Jan2013-v1_MuEl","Run2012D-22Jan2013-v1_MuEl"]
+#rdlist += ["Run2012A-22Jan2013-v1_ElEl","Run2012B-22Jan2013-v1_ElEl","Run2012C-22Jan2013-v1_ElEl","Run2012D-22Jan2013-v1_ElEl"]
 
 samplePath = {}
 samplePath["ZJets"]           ="KoPFA.CommonTools.Sources.CMG.V5_13_0.Summer12.cmgTuple_ZJets_cff"
@@ -52,6 +58,18 @@ samplePath["TTbarSemiLeptP11"] ="KoPFA.CommonTools.Sources.CMG.V5_13_0.Summer12.
 samplePath["TTbarHadronicP11"] ="KoPFA.CommonTools.Sources.CMG.V5_13_0.Summer12.cmgTuple_TTbarHadronicP11_cff"
 samplePath["TTbar161_5"]      = "KoPFA.CommonTools.Sources.CMG.V5_13_0.Summer12.cmgTuple_TTJets_mass161_5_TuneZ2star_cff"
 samplePath["TTbar184_5"]      = "KoPFA.CommonTools.Sources.CMG.V5_13_0.Summer12.cmgTuple_TTJets_mass184_5_TuneZ2star_cff"
+samplePath["MadSpin166_5"]      = "KoPFA.CommonTools.Sources.CMG.V5_13_0.madspin.cmgtuple_166_5_cff"
+samplePath["MadSpin169_5"]      = "KoPFA.CommonTools.Sources.CMG.V5_13_0.madspin.cmgtuple_169_5_cff"
+samplePath["MadSpin171_5"]      = "KoPFA.CommonTools.Sources.CMG.V5_13_0.madspin.cmgtuple_171_5_cff"
+samplePath["MadSpin173_5"]      = "KoPFA.CommonTools.Sources.CMG.V5_13_0.madspin.cmgtuple_173_5_cff"
+samplePath["MadSpin175_5"]      = "KoPFA.CommonTools.Sources.CMG.V5_13_0.madspin.cmgtuple_175_5_cff"
+samplePath["MadSpin178_5"]      = "KoPFA.CommonTools.Sources.CMG.V5_13_0.madspin.cmgtuple_178_5_cff"
+samplePath["MadSpin166_5_UOS"]      = "KoPFA.CommonTools.Sources.CMG.V5_13_0.madspin.cmgtuple_166_5_UOS_cff"
+samplePath["MadSpin169_5_UOS"]      = "KoPFA.CommonTools.Sources.CMG.V5_13_0.madspin.cmgtuple_169_5_UOS_cff"
+samplePath["MadSpin171_5_UOS"]      = "KoPFA.CommonTools.Sources.CMG.V5_13_0.madspin.cmgtuple_171_5_UOS_cff"
+samplePath["MadSpin173_5_UOS"]      = "KoPFA.CommonTools.Sources.CMG.V5_13_0.madspin.cmgtuple_173_5_UOS_cff"
+samplePath["MadSpin175_5_UOS"]      = "KoPFA.CommonTools.Sources.CMG.V5_13_0.madspin.cmgtuple_175_5_UOS_cff"
+samplePath["MadSpin178_5_UOS"]      = "KoPFA.CommonTools.Sources.CMG.V5_13_0.madspin.cmgtuple_178_5_UOS_cff"
 
 ### DATA ####
 samplePath["Run2012Av1_MuMu"]    ="KoPFA.CommonTools.Sources.CMG.V5_13_0.Run2012.cmgTuple_Run2012Av1_MuMu_cff"
@@ -125,9 +143,14 @@ def applyFilter(sample, process):
   #    process.GenZmassFilterElEl.decayMode = [11,13]
 
 def processSample( sample, dir):
-    os.system("rm -rf "+dir+"/"+sample)
-    os.system("rfmkdir "+dir+"/"+sample)
-    os.system("rfmkdir "+dir+"/"+sample+"/Res")
+    if ( site == 'cern') :
+        os.system("rm -rf "+dir+"/"+sample)
+        os.system("rfmkdir "+dir+"/"+sample)
+        os.system("rfmkdir "+dir+"/"+sample+"/Res")
+    else :
+        os.system("rm -rf "+dir+"/"+sample)
+        os.system("mkdir -p "+dir+"/"+sample+"/Res")
+
     out = open(dir+'/cmg2kcms_'+sample+'_cfg.py','w')
     process.TFileService.fileName = cms.string('vallot_'+sample+'.root')
     process.load(samplePath[sample]) 
@@ -137,9 +160,29 @@ def processSample( sample, dir):
 
     out.write(process.dumpPython())
     out.close()
-    os.system("cmsBatch0.py 1 "+dir+'/cmg2kcms_'+sample+'_cfg.py'+" -o "+dir+"/"+sample+"/Log -r "+dir+"/"+sample+"/Res -b 'bsub -q 1nh < batchScript.sh'")
-    #os.system("cmsBatch0.py 3 "+dir+'/cmg2kcms_'+sample+'_cfg.py'+" -o "+dir+"/"+sample+"/Log -r "+dir+"/"+sample+"/Res -b 'bsub -q 1nh -oo "+dir+"/"+"log < batchScript.sh'")
-    #os.system("cmsBatch0.py 1 "+dir+'/cmg2kcms_'+sample+'_cfg.py'+" -o "+dir+"/"+sample+"/Log -r "+dir+"/"+sample+"/Res -b 'bsub -G u_zh -q 1nh < batchScript.sh'")
+    if ( site == 'sscc' ) :
+        os.system("cmsBatch0.py 3 "+dir+'/cmg2kcms_'+sample+'_cfg.py'+" -o "+dir+"/"+sample+"/Log -r "+dir+"/"+sample+"/Res -b 'qsub -q batch batchScript.sh'")
+    elif ( site == 'knu') :
+        os.system("cmsBatch0.py 100 "+dir+'/cmg2kcms_'+sample+'_cfg.py'+" -o "+dir+"/"+sample+"/Log -r "+dir+"/"+sample+"/Res -b 'qsub -q cms batchScript.sh'")
+    elif ( site == 'cern' ) :
+        os.system("cmsBatch0.py 3 "+dir+'/cmg2kcms_'+sample+'_cfg.py'+" -o "+dir+"/"+sample+"/Log -r "+dir+"/"+sample+"/Res -b 'bsub -q 1nh -oo "+dir+"/"+"log < batchScript.sh'")
+        #os.system("cmsBatch0.py 1 "+dir+'/cmg2kcms_'+sample+'_cfg.py'+" -o "+dir+"/"+sample+"/Log -r "+dir+"/"+sample+"/Res -b 'bsub -G u_zh -q 1nh < batchScript.sh'")
+    else :
+        pass
+
+def waitingProcess( ) :
+    if ( site != 'sscc') :
+        time.sleep(60)
+    else :    # at UOS
+        while True :
+            text=os.popen("qstat -q | grep batch  | awk '{ print $7 }'")  
+            value = int(text.readline())
+            if (value < 100 ) :
+                break
+            else : 
+                time.sleep( 60 )
+                print "Sleeping 1 minute due to many queues." 
+
 
 currdir = commands.getoutput('pwd') 
 print currdir
@@ -147,25 +190,28 @@ print currdir
 outdir = currdir+"/Out/"
 
 #if you want to save ntuple in castor
-#outdir = "/castor/cern.ch/user/t/tjkim/ntuple/top/Out/"
+#outdir = "/castor/cern.ch/user/g/geonmo/ntuple/top/Out/"
 
 #to save log information in local
-os.system("rfmkdir Out")
-os.system("rfmkdir "+outdir)
+#os.system("mkdir Out")
+os.system("mkdir -p  "+outdir)
+
+site = socket.gethostname().split('.')[1]
 
 if input == "mc":
   for s in mclist:
     processSample(s, outdir)
-    time.sleep(60)
+    waitingProcess()
 elif input == "data":
   for s in rdlist:
     processSample(s, outdir)  
-    time.sleep(60)
+    waitingProcess()
 elif input == "all":
   for s in mclist:
     processSample(s, outdir)
-    time.sleep(60)
+    waitingProcess()
   for s in rdlist:
     processSample(s, outdir)
-    time.sleep(60)
+    waitingProcess()
+
 

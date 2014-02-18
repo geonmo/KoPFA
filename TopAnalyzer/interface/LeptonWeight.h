@@ -48,7 +48,7 @@ class LeptonWeight
         if( fabs(eta) >= 2.1 && fabs(eta) < 2.5 ) scale = 1.024;
       }
     }else if(type == Electron){
-      if( pt < 30 ){
+      /*if( pt < 30 ){
         if( fabs(eta) >= 0.0 && fabs(eta) < 0.8 )   scale = 0.971;      
         if( fabs(eta) >= 0.8 && fabs(eta) < 1.479 ) scale = 0.962;      
         if( fabs(eta) >= 1.479 && fabs(eta) < 2.5 ) scale = 0.921;
@@ -67,6 +67,27 @@ class LeptonWeight
         if( fabs(eta) >= 0.0 && fabs(eta) < 0.8 )   scale = 0.964;
         if( fabs(eta) >= 0.8 && fabs(eta) < 1.479 ) scale = 0.963;
         if( fabs(eta) >= 1.479 && fabs(eta) < 2.5 ) scale = 0.963;
+      } prompt reco value */
+
+      if( pt < 30 ){
+        if( fabs(eta) >= 0.0 && fabs(eta) < 0.8 )   scale = 0.949;
+        if( fabs(eta) >= 0.8 && fabs(eta) < 1.479 ) scale = 0.900;
+        if( fabs(eta) >= 1.479 && fabs(eta) < 2.5 ) scale = 0.857;
+      }
+      if( pt >= 30 && pt < 40 ){
+        if( fabs(eta) >= 0.0 && fabs(eta) < 0.8 )   scale = 0.939;
+        if( fabs(eta) >= 0.8 && fabs(eta) < 1.479 ) scale = 0.920;
+        if( fabs(eta) >= 1.479 && fabs(eta) < 2.5 ) scale = 0.907;
+      }
+      if( pt >= 40 && pt < 50 ){
+        if( fabs(eta) >= 0.0 && fabs(eta) < 0.8 )   scale = 0.950;
+        if( fabs(eta) >= 0.8 && fabs(eta) < 1.479 ) scale = 0.949;
+        if( fabs(eta) >= 1.479 && fabs(eta) < 2.5 ) scale = 0.937;
+        }
+      if( pt >= 50 ){
+        if( fabs(eta) >= 0.0 && fabs(eta) < 0.8 )   scale = 0.957;
+        if( fabs(eta) >= 0.8 && fabs(eta) < 1.479 ) scale = 0.959;
+        if( fabs(eta) >= 1.479 && fabs(eta) < 2.5 ) scale = 0.954;
       }
     }else{
       return scale = 1;

@@ -300,7 +300,7 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     tree->Branch("JPsippdlTrue",&JPsippdlTrue,"JPsippdlTrue/d");
     tree->Branch("LepJPsiMass1",&LepJPsiMass1,"LepJPsiMass1/d");
     tree->Branch("LepJPsiMass2",&LepJPsiMass2,"LepJPsiMass2/d");
-    tree->Branch("LepJPsiMass",&LepJPsiMass,"LepJPsi2Mass/d");
+    //tree->Branch("LepJPsiMass",&LepJPsiMass,"LepJPsiMass/d");
     tree->Branch("LepJPsiMassdRLower",&LepJPsiMassdRLower,"LepJPsiMassdRLower/d");
     tree->Branch("LepJPsiMassdThetaLower",&LepJPsiMassdThetaLower,"LepJPsiMassdThetaLower/d");
     tree->Branch("LepJPsiMassdPhiLower",&LepJPsiMassdPhiLower,"LepJPsiMassdPhiLower/d");
@@ -741,8 +741,8 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
       JPsippdlTrue = JPsiCand->at(0).ppdlTrue();
       LepJPsiMass1 = LepJPsiCand1->at(0).mass();
       LepJPsiMass2 = LepJPsiCand2->at(0).mass();
-      LepJPsiMass = LepJPsiMass1;
-      LepJPsiMass = LepJPsiMass2;
+      //LepJPsiMass = LepJPsiMass1;
+      //LepJPsiMass = LepJPsiMass2;
       LepJPsidTheta1 = LepJPsiCand1->at(0).dtheta();
       LepJPsidTheta2 = LepJPsiCand2->at(0).dtheta();
       LepJPsidPhi1 = fabs(LepJPsiCand1->at(0).deltaPhi());
@@ -1562,7 +1562,7 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
     JPsippdlTrue = -999;
     LepJPsiMass1 = -999;
     LepJPsiMass2 = -999;
-    LepJPsiMass = -999;
+    //LepJPsiMass = -999;
     LepJPsiMassdRLower = -999;
     LepJPsiMassdThetaLower = -999;
     LepJPsiMassdPhiLower = -999;
@@ -1982,7 +1982,7 @@ class CMGTopDILJPsiAnalyzer : public edm::EDFilter {
   double LepJPsidR2;
   double LepJPsiMass1;
   double LepJPsiMass2;
-  double LepJPsiMass;
+  //double LepJPsiMass;
   double LepJPsiMassdRLower;
   double LepJPsiMassdThetaLower;
   double LepJPsiMassdPhiLower;

@@ -11,6 +11,7 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "TLorentzVector.h"
 #include "EgammaAnalysis/ElectronTools/interface/ElectronEffectiveArea.h"
+
 using namespace std;
 
 PatElectronAnalyzer::PatElectronAnalyzer(const edm::ParameterSet& cfg)

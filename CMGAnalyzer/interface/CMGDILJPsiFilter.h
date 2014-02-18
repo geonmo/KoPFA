@@ -321,22 +321,35 @@ class CMGDILJPsiFilter : public edm::EDFilter {
             double DlTrue = -999.;
             double ppdlTrue = -999.;
 
-            if(it3.sourcePtr()->get()->track().isNonnull() && it4.sourcePtr()->get()->track().isNonnull()) {
+            //if((it3.sourcePtr()->get()->track().isNonnull() && it4.sourcePtr()->get()->track().isNonnull()) || (it3.sourcePtr()->get()->gsfTrack().isNonnull() && it4.sourcePtr()->get()->gsfTrack().isNonnull())) {
+            if(trackIsNonnull(it3) && trackIsNonnull(it4)){
                vector<TransientTrack> t_tks;
-               //TrackRef tk3 = it3.sourcePtr()->get()->track();
-               //TrackRef tk4 = it4.sourcePtr()->get()->track();
+               //TrackRef tk3, tk4;
+
+               if(it3.isMuon() && it4.isMuon() ) {     
+                  // tk3 = it3.sourcePtr()->get()->track();
+                  //tk4 = it4.sourcePtr()->get()->track();
+                  t_tks.push_back(theTTBuilder->build(it3.sourcePtr()->get()->track()));
+                  t_tks.push_back(theTTBuilder->build(it4.sourcePtr()->get()->track())); 
+               }
+               if(!it3.isMuon() && !it4.isMuon() ) {
+                  //tk3 = it3.sourcePtr()->get()->TrackRef();
+                  //tk4 = it4.sourcePtr()->get()->TrackRef();
+                  t_tks.push_back(theTTBuilder->build(it3.sourcePtr()->get()->gsfTrack()));
+                  t_tks.push_back(theTTBuilder->build(it4.sourcePtr()->get()->gsfTrack()));
+               }
+       
                //TransientTrack ttkp3 = (*theTTBuilder).build(&tk3);
                //TransientTrack ttkp4 = (*theTTBuilder).build(&tk4);
                //t_tks.push_back(ttkp3);
                //t_tks.push_back(ttkp4);
 
-               t_tks.push_back(theTTBuilder->build(it3.sourcePtr()->get()->track()));
-               t_tks.push_back(theTTBuilder->build(it4.sourcePtr()->get()->track()));  
-
                KalmanVertexFitter vtxFitter;
                TransientVertex myVertex = vtxFitter.vertex(t_tks);
-            
+
+               //if (!it3.isMuon() && !it4.isMuon() && myVertex.isValid()) cout<<"----->Vertex is valid"<<endl;              
                if (myVertex.isValid()) {
+       
                   double vChi2 = myVertex.totalChiSquared();
                   double vNDF  = myVertex.degreesOfFreedom();
                   vNChi2 = vChi2/vNDF;
@@ -643,10 +656,22 @@ class CMGDILJPsiFilter : public edm::EDFilter {
                    //&& cmgEl.mvaTrigV0()>0.5
                    //&& cmgEl.sourcePtr()->get()->gsfTrack()->trackerExpectedHitsInner().numberOfHits()<=0;
 
+        //if(!cmgEl.sourcePtr()->get()->track().isNonnull()) cout<<"----->no electron track"<<endl;
+
         return passPre;
 
   }
  
+  bool trackIsNonnull(const cmg::Muon& cmgMu){
+
+       return cmgMu.sourcePtr()->get()->track().isNonnull(); 
+  }
+ 
+  bool trackIsNonnull(const cmg::Electron& cmgEl){
+
+       return cmgEl.sourcePtr()->get()->gsfTrack().isNonnull();
+  }
+
   int getPixlayers(const cmg::Muon& cmgMu){
         return cmgMu.pixelLayersWithMeasurement();
   }

@@ -7,15 +7,15 @@ process.options  = cms.untracked.PSet(
     SkipEvent = cms.untracked.vstring('ProductNotFound')
 )
 
-#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring()
-)
+#process.source = cms.Source("PoolSource",
+#    fileNames = cms.untracked.vstring()
+#)
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 10000
+#process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 process.load('Configuration.StandardSequences.GeometryExtended_cff')
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
@@ -41,12 +41,26 @@ runOn2012 = True
 #process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.Run2012.cmgTuple_Run2012CElEl_cff")
 #MC
 #process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.Summer12.patTuple_TTbarTuneZ2_cff")
-process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.Summer12.cmgTuple_TTbarFullLepMGDecays_cff")
+#process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.Summer12.cmgTuple_TTbarFullLepMGDecays_cff")
 #process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.Summer12.patTuple_TTbarFullLeptP11_cff")
 #process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.Summer12.cmgTuple_TTH_HToBB_M125_cff")
 #process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.Summer12.cmgTuple_TTbarTuneZ2_cff")
 #process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.Summer12.cmgTuple_ZJets_cff")
-
+#process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.LYON.patTuple_TTbarFullLepSemiLeptPYTHIA6_173_cff")
+#process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.LYON.patTuple_TTbarFullLepSemiLeptPYTHIA6_158_cff")
+#process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.LYON.patTuple_TTbarFullLepSemiLeptPYTHIA6_163_cff")
+#process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.LYON.patTuple_TTbarFullLepSemiLeptPYTHIA6_167_cff")
+#process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.LYON.patTuple_TTbarFullLepSemiLeptPYTHIA6_170_cff")
+#process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.LYON.patTuple_TTbarFullLepSemiLeptPYTHIA6_171_cff")
+#process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.LYON.patTuple_TTbarFullLepSemiLeptPYTHIA6_172_cff")
+#process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.LYON.patTuple_TTbarFullLepSemiLeptPYTHIA6_174_cff")
+#process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.LYON.patTuple_TTbarFullLepSemiLeptPYTHIA6_175_cff")
+#process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.LYON.patTuple_TTbarFullLepSemiLeptPYTHIA6_176_cff")
+#process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.LYON.patTuple_TTbarFullLepSemiLeptPYTHIA6_177_cff")
+#process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.LYON.patTuple_TTbarFullLepSemiLeptPYTHIA6_179_cff")
+#process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.LYON.patTuple_TTbarFullLepSemiLeptPYTHIA6_183_cff")
+#process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.LYON.patTuple_TTbarFullLepSemiLeptPYTHIA6_188_cff")
+process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.madspin.cmgtuple_166_5_cff")
 
 #process.source = cms.Source("PoolSource",
 #  fileNames = cms.untracked.vstring(
@@ -57,6 +71,7 @@ process.load("KoPFA.CommonTools.Sources.CMG.V5_13_0.Summer12.cmgTuple_TTbarFullL
 #)
 
 from CMGTools.Common.Tools.applyJSON_cff import applyJSON
+#json = 'Cert_8TeV_Run2012ABCD_Golden_JSON.txt'
 json = 'Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt'
 if not runOnMC:
     applyJSON(process, json )
@@ -340,7 +355,7 @@ process.p9 = cms.Path(
 #)
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('vallot_Fullttbar_2els_10K.root')
+    fileName = cms.string('vallot_madspin_166_5.root')
 )
 
 #############This is only for combining three channels#######################
